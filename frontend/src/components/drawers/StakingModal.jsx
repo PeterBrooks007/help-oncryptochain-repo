@@ -49,37 +49,43 @@ const stakeWalletArray = [
   {
     name: "Zilliqa",
     symbol: "ZIL",
-    percentage: "15%",
+    // percentage: "15%",
+    percentage: "25%",
     image: "https://assets.coingecko.com/coins/images/2687/standard/Zilliqa-logo.png?1696503475"
   },
   {
     name: "Nillion",
     symbol: "NIL",
-    percentage: "20%",
+    // percentage: "20%",
+    percentage: "25%",
     image: "https://assets.coingecko.com/coins/images/39082/standard/nillion.jpg?1723033507"
   },
   {
     name: "Cosmos",
     symbol: "ATOM",
-    percentage: "20%",
+    // percentage: "20%",
+    percentage: "25%",
     image: "https://assets.coingecko.com/coins/images/1481/standard/cosmos_hub.png?1696502525"
   },
   {
     name: "Solana",
     symbol: "SOL",
-    percentage: "7%",
+    // percentage: "7%",
+    percentage: "25%",
     image: "https://assets.coingecko.com/coins/images/4128/standard/solana.png?1718769756"
   },
   {
     name: "Cardano",
     symbol: "ADA",
-    percentage: "5%",
+    // percentage: "5%",
+    percentage: "25%",
     image: "https://assets.coingecko.com/coins/images/975/standard/cardano.png?169650"
   },
   {
     name: "Ethereum",
     symbol: "ETH",
-    percentage: "8%",
+    // percentage: "8%",
+    percentage: "25%",
     image: "https://assets.coingecko.com/coins/images/279/standard/ethereum.png?1696501628"
   },
 
