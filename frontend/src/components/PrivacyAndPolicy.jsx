@@ -38,7 +38,7 @@ function PrivacyAndPolicy() {
             1. Introduction
           </Typography>
           <Typography variant="body1" paragraph>
-            Welcome to Vixcapital Platform. Your privacy is important to us.
+            Welcome to help-oncryptochain Platform. Your privacy is important to us.
             This privacy policy outlines how we collect, use, and protect your
             personal and financial data when you use our services for trading
             stocks, forex, and cryptocurrencies. By using our platform, you
@@ -219,9 +219,9 @@ function PrivacyAndPolicy() {
             practices, please contact us at:
           </Typography>
           <Typography variant="body1" paragraph>
-            Vixcapital Investment
+            help-oncryptochain Investment
             <br />
-            Email: support@Vixcapital.live
+            Email: support@help-oncryptochain.live
             <br />
             {/* Phone: [Your Contact Phone] */}
           </Typography>

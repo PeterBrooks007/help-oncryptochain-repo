@@ -117,7 +117,7 @@ const HomeMobile = () => {
               fontWeight={900}
               fontSize={isMobile ? "40px" : "60px"}
             >
-              Vixcapital
+              help-oncryptochain
             </MotionTypography>
           </Stack>
 
@@ -130,7 +130,7 @@ const HomeMobile = () => {
             fontWeight={900}
           >
             CHALLENGE THE MARKET WITH{" "}
-            <span style={{ color: "gold" }}> Vixcapital WEB APP </span>
+            <span style={{ color: "gold" }}> help-oncryptochain WEB APP </span>
           </MotionTypography>
 
           <MotionTypography
@@ -143,7 +143,7 @@ const HomeMobile = () => {
               color: "white",
             }}
           >
-            Join over 26 million users who have already chosen the Vixcapital web
+            Join over 26 million users who have already chosen the help-oncryptochain web
             app for trading.
           </MotionTypography>
 

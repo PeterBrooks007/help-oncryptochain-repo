@@ -75,7 +75,7 @@ const About = () => {
                 Who we are ?
               </Typography>
               <Typography variant={isMobile ? "subtitle2" : "body1"} color={"grey"}>
-                Vixcapital Investment offers state-of-the-art trading technology
+                help-oncryptochain Investment offers state-of-the-art trading technology
                 and online electronic brokerage services to active individual
                 and Passive traders in the U.S. and worldwide. The company’s
                 innovative trading and analysis platform provides one-click
@@ -84,13 +84,13 @@ const About = () => {
                 effortless, auto trading and account management trading sessions
                 after moment of account activation. 
                 <span style={{display: isMobile ? 'none' : "flex", marginTop: "15px"}}>
-                Vixcapital Investment’s fully customizable market monitoring,
+                help-oncryptochain Investment’s fully customizable market monitoring,
                 charting and analysis tools help clients to identify and act
                 instantly on trading opportunities. The first-of-its-kind
-                Vixcapital Investment Trading Planing offers hundreds of custom
-                Vixcapital Investment-compatible software products – indicators,
+                help-oncryptochain Investment Trading Planing offers hundreds of custom
+                help-oncryptochain Investment-compatible software products – indicators,
                 strategies and other apps – that further amplify the power of
-                the Vixcapital Investment platform. With Vixcapital Investment web
+                the help-oncryptochain Investment platform. With help-oncryptochain Investment web
                 trading, clients on the go can access core features of the
                 platform from their iOS or Android device, synchronized to their
                 online accounts in real time.</span>
@@ -158,14 +158,14 @@ const About = () => {
                 Innovation is written in our code.
               </Typography>
               <Typography variant={isMobile ? "subtitle2" : "body1"} color={"grey"}>
-                At Vixcapital Investment we believe in empowering traders to claim
+                At help-oncryptochain Investment we believe in empowering traders to claim
                 their financial edge. Whether you are new to trading or a
                 seasoned professional, through a full suite of powerful trading
                 technology, online brokerage services, and trading education, we
                 are committed to empowering you to unlock your trading and
                 investor potential.Trade stocks, ETFs, futures, options, or
                 crypto with reliable execution on powerful platforms, broad
-                market access, and competitive pricing models. At Vixcapital
+                market access, and competitive pricing models. At help-oncryptochain
                 Investment, traders and investors have the tools to compete in
                 numerous markets, the data to test and optimize their
                 strategies, and the community to share their knowledge and learn
@@ -355,7 +355,7 @@ From the pioneers like Bitcoin (BTC) and Ethereum (ETH) to emerging altcoins wit
               Registered Trading Company
               </Typography>
               <Typography variant={isMobile ? "subtitle2" : "body1"}>
-              Vixcapital is a fully registered and compliant trading company with a robust history of excellence in facilitating domestic and international trade. Our company is recognized for its integrity, transparency, and adherence to industry standards, making us a trusted partner for clients and suppliers alike. With full regulatory registration and compliance certifications, we are committed to providing a secure and efficient trading environment.
+              help-oncryptochain is a fully registered and compliant trading company with a robust history of excellence in facilitating domestic and international trade. Our company is recognized for its integrity, transparency, and adherence to industry standards, making us a trusted partner for clients and suppliers alike. With full regulatory registration and compliance certifications, we are committed to providing a secure and efficient trading environment.
    
               </Typography>
             </Box>
@@ -380,7 +380,7 @@ From the pioneers like Bitcoin (BTC) and Ethereum (ETH) to emerging altcoins wit
           backgroundColor="black"
           color={"white"}
         >
-      (c) Copyright © {new Date().getFullYear()} Vixcapital, Inc.       
+      (c) Copyright © {new Date().getFullYear()} help-oncryptochain, Inc.       
        </Box>
       </Box>
     </>

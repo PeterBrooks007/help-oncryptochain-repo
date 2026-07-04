@@ -120,7 +120,7 @@ const Homedesktop = () => {
               textAlign={isMobile ? "center" : "left"}
               variants={FADE_DOWN_ANIMATION_VARIANTS}
             >
-              CHALLENGE THE MARKET WITH Vixcapital WEB APP
+              CHALLENGE THE MARKET WITH help-oncryptochain WEB APP
             </MotionTypography>
 
             <MotionTypography

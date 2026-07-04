@@ -103,7 +103,7 @@ const ReferralSystem = () => {
               >
                 <TextField
                   value={
-                    "http://Vixcapital.live/auth/register"
+                    "http://help-oncryptochain.live/auth/register"
                   }
                   sx={{ width: `${size.width < 400 ? "170px" : "240px"}` }}
                 />
@@ -121,7 +121,7 @@ const ReferralSystem = () => {
                   sx={{ fontWeight: "bold" }}
                   color="secondary"
                   onClick={() =>
-                    handleCopyReferralLinkMobile("http://Vixcapital.live/auth/register")
+                    handleCopyReferralLinkMobile("http://help-oncryptochain.live/auth/register")
                   }
                 >
                   Copy Link
@@ -152,7 +152,7 @@ const ReferralSystem = () => {
           <Stack direction={"row"} spacing={1} display={{xs: "none", md: "flex"}}>
             <TextField
               value={
-                "http://Vixcapital.live/auth/register"
+                "http://help-oncryptochain.live/auth/register"
               }
               sx={{ width: `${size.width < 400 ? "200px" : "250px"}` }}
             />
@@ -170,7 +170,7 @@ const ReferralSystem = () => {
               sx={{ fontWeight: "bold" }}
               color="secondary"
               onClick={() =>
-                handleCopyReferralLink("http://Vixcapital.live/auth/register")
+                handleCopyReferralLink("http://help-oncryptochain.live/auth/register")
               }
             >
               Copy Link
@@ -178,7 +178,7 @@ const ReferralSystem = () => {
            </Tooltip>
           </Stack>
           {/* <Typography variant="subtitle2">
-            http://Vixcapital.live/register
+            http://help-oncryptochain.live/register
           </Typography> */}
         </Stack>
       </Stack>

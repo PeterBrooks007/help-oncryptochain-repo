@@ -474,7 +474,7 @@ const CardDrawer = ({ open, handleClose, handleOpen }) => {
                       <span style={{ color: "#009a4c", fontWeight: 600 }}>
                         Exciting Discounts
                       </span>{" "}
-                      with your Vixcapital card
+                      with your help-oncryptochain card
                     </Typography>
                   </Stack>
                 </Stack>

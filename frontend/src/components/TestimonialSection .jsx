@@ -13,21 +13,21 @@ const testimonials = [
     country: 'USA',
     image: reviewer1,
     feedback:
-      'I had a great experience working with Vixcapital. They were very friendly and easy to work with, I would definitely recommend them to anyone looking for [service provided].',
+      'I had a great experience working with help-oncryptochain. They were very friendly and easy to work with, I would definitely recommend them to anyone looking for [service provided].',
   },
   {
     name: 'Mùchén Yŭxuān',
     country: 'China',
     image: reviewer2,
     feedback:
-      '我最近有幸与 Vixcapital 合作，并对结果非常满意。他们非常专业，确保一切都让我满意。我将来肯定会再次与他们合作。',
+      '我最近有幸与 help-oncryptochain 合作，并对结果非常满意。他们非常专业，确保一切都让我满意。我将来肯定会再次与他们合作。',
   },
   {
     name: 'Charlotte George',
     country: 'Australia',
     image: reviewer4,
     feedback:
-      'I was very impressed with the quality of service that I received from Vixcapital. They were very knowledgeable and helped me navigate a complex process with ease. ',
+      'I was very impressed with the quality of service that I received from help-oncryptochain. They were very knowledgeable and helped me navigate a complex process with ease. ',
   },
   {
     name: 'Williams Arthur Junior',

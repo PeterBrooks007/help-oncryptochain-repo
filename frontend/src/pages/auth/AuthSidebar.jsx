@@ -68,7 +68,7 @@ const AuthHeader = () => {
           >
             <img src={LogoImg} alt="logo" width={40} />
             <Typography variant="h5" color={"white"} fontWeight={"700"}>
-            Vixcapital
+            Oncryptochain
             </Typography>
           </Stack>
 
