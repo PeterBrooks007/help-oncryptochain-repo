@@ -30,7 +30,7 @@ export const useSSEConnection = (user, pathnameRef) => {
           user._id,
       );
 
-       console.log("✅ trying to SSE connection established now", user._id);
+      //  console.log("✅ trying to SSE connection established now", user._id);
 
 
       eventSource.addEventListener("open", () => {

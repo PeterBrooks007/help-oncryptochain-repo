@@ -80,23 +80,23 @@ const Login = () => {
       return;
     }
 
-    if (isSuccess && isLoggedIn && user && user?.isEmailVerified === false) {
-      navigate("/auth/verify-email");
-      dispatch(RESET_AUTH());
-      return;
-    }
+    // if (isSuccess && isLoggedIn && user && user?.isEmailVerified === false) {
+    //   navigate("/auth/verify-email");
+    //   dispatch(RESET_AUTH());
+    //   return;
+    // }
 
-    if (
-      isSuccess &&
-      isLoggedIn &&
-      user &&
-      (user?.isIdVerified === "NOT VERIFIED" ||
-        user?.isIdVerified === "PENDING")
-    ) {
-      navigate("/auth/account-setup");
-      dispatch(RESET_AUTH());
-      return;
-    }
+    // if (
+    //   isSuccess &&
+    //   isLoggedIn &&
+    //   user &&
+    //   (user?.isIdVerified === "NOT VERIFIED" ||
+    //     user?.isIdVerified === "PENDING")
+    // ) {
+    //   navigate("/auth/account-setup");
+    //   dispatch(RESET_AUTH());
+    //   return;
+    // }
 
     if (isSuccess && isLoggedIn && user && user?.role === "customer") {
       navigate("/dashboard");

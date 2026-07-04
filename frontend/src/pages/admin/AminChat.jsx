@@ -85,7 +85,7 @@ const AdminChat = () => {
       ],
     };
 
-    console.log("formData:", formData);
+    // console.log("formData:", formData);
     await dispatch(addmail(formData));
     // dispatch(getAllMail());
 
