@@ -8,7 +8,7 @@ const userGeneralEmailTemplate = (name, introMessage) => {
             //     button: {
             //         color: '#386904', // Optional action button color
             //         text: 'Go to dashboard',
-            //         link: 'https://vixcapital.live/admin',
+            //         link: 'https://help-oncryptochain.live/admin',
             //     },
             // },
           

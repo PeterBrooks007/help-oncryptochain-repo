@@ -1,7 +1,35 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
 const { validationResult } = require("express-validator");
-const Mailbox = require("../models/mailboxModel");
+const Mailbox = require("../models/mailboxModel"); 
+
+// import connections from "../sseStore.js";
+const connections = require("../sseStore");
+
+// Controller function for the SSE(server side event) endpoint
+const sseController = (req, res) => {
+  const { userId } = req.params;
+  console.log("New Client connected: ", userId);
+
+  //set SSE headers
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+
+  //Add the client's response object to the connections object
+  connections[userId] = res;
+
+  //Send an initial event to the client
+  res.write("log: Connected to SSE stream\n\n");
+
+  //Handle client disconnection
+  req.on("close", () => {
+    //Remove the client's response object from the connections array
+    delete connections[userId];
+    console.log("Client disconnected");
+  });
+};
 
 //addmail
 const addmail = asyncHandler(async (req, res) => {
@@ -17,7 +45,7 @@ const addmail = asyncHandler(async (req, res) => {
   await Mailbox.updateOne(
     { userId },
     { $push: { messages: messages } },
-    { upsert: true } // Creates a new document if recipient doesn't exist
+    { upsert: true }, // Creates a new document if recipient doesn't exist
   );
 
   if (req.user.role === "admin") {
@@ -34,7 +62,7 @@ const addmail = asyncHandler(async (req, res) => {
     const allMessages = allMailSent.flatMap((mailbox) => {
       return mailbox.messages
         .filter(
-          (message) => !message.to.match(new RegExp(searchWord, "i")) // Exclude messages matching the searchWord
+          (message) => !message.to.match(new RegExp(searchWord, "i")), // Exclude messages matching the searchWord
         )
         .map((message) => ({
           ...message.toObject(), // Convert Mongoose message subdocument to plain object
@@ -52,8 +80,17 @@ const addmail = asyncHandler(async (req, res) => {
       return a.isRead ? 1 : -1;
     });
 
+    const allMail = await Mailbox.find()
+      .sort("-createdAt")
+      .populate("userId", "_id firstname lastname email photo");
+
+    // send message to_user_id using SSE
+    if (connections[userId]) {
+      connections[userId].write(`data: ${JSON.stringify("data")}\n\n`);
+    }
+
     return res.status(200).json({
-      data: sortedMessages,
+      data: allMail,
       message: "Message Sent Successfully",
       from: "support",
     });
@@ -63,6 +100,19 @@ const addmail = asyncHandler(async (req, res) => {
     .limit(1)
     .sort("-createdAt")
     .populate("userId", "_id firstname lastname email photo");
+
+  // send message to admin using SSE
+
+  sseData = {
+    userId: allUserMail?.[0]?.userId?._id,
+    firstname: allUserMail?.[0]?.userId?.firstname,
+  };
+
+  if (connections["6a462ad4ca48e0ef6a47a631"]) {
+    connections["6a462ad4ca48e0ef6a47a631"].write(
+      `data: ${JSON.stringify(sseData)}\n\n`,
+    );
+  }
 
   res.status(200).json({
     data: allUserMail,
@@ -128,7 +178,7 @@ const getAllMailSent = asyncHandler(async (req, res) => {
   const allMessages = allMailSent.flatMap((mailbox) => {
     return mailbox.messages
       .filter(
-        (message) => !message.to.match(new RegExp(searchWord, "i")) // Exclude messages matching the searchWord
+        (message) => !message.to.match(new RegExp(searchWord, "i")), // Exclude messages matching the searchWord
       )
       .map((message) => ({
         ...message.toObject(), // Convert Mongoose message subdocument to plain object
@@ -201,7 +251,6 @@ const adminDeleteMail = asyncHandler(async (req, res) => {
     throw new Error(errors.array()[0].msg);
   }
 
-
   if (
     !messageData ||
     !Array.isArray(messageData.messageData) ||
@@ -226,7 +275,7 @@ const adminDeleteMail = asyncHandler(async (req, res) => {
   const deleteOperations = mailboxes.map((mailbox) => {
     return Mailbox.updateOne(
       { _id: mailbox._id },
-      { $pull: { messages: { _id: { $in: messageIds } } } }
+      { $pull: { messages: { _id: { $in: messageIds } } } },
     );
   });
 
@@ -236,7 +285,7 @@ const adminDeleteMail = asyncHandler(async (req, res) => {
   // Check if any messages were deleted
   const deletedMessagesCount = results.reduce(
     (count, result) => count + result.modifiedCount,
-    0
+    0,
   );
   if (deletedMessagesCount === 0) {
     res.status(404);
@@ -304,130 +353,165 @@ const adminDeleteMail = asyncHandler(async (req, res) => {
 });
 
 // Admin MarkMailAsRead
+// const adminMarkMailAsRead = asyncHandler(async (req, res) => {
+//   const { messageData } = req.body;
+
+//   if (
+//     !messageData ||
+//     !Array.isArray(messageData.messageData) ||
+//     messageData.messageData.length === 0
+//   ) {
+//     res.status(400);
+//     throw new Error("No message IDs provided yet");
+//   }
+
+//   // Extract message IDs from the messageData
+//   const messageIds = messageData.messageData.map(({ messageId }) => messageId);
+
+//   // Find mailboxes that contain any of the message IDs
+//   const mailboxes = await Mailbox.find({
+//     "messages._id": { $in: messageIds },
+//   });
+
+//   // If no mailboxes are found, return a 404 response
+//   if (!mailboxes || mailboxes.length === 0) {
+//     return res.status(404).json({ message: "No messages found." });
+//   }
+
+//   // Update each message individually to set isRead to true
+//   await Promise.all(
+//     mailboxes.map((mailbox) => {
+//       return Promise.all(
+//         messageIds.map((messageId) => {
+//           return Mailbox.updateOne(
+//             { _id: mailbox._id, "messages._id": messageId },
+//             { $set: { "messages.$.isRead": true } },
+//           );
+//         }),
+//       );
+//     }),
+//   );
+
+//   // Fetch updated messages
+//   const updatedMessages = mailboxes.flatMap((mailbox) =>
+//     mailbox.messages
+//       .filter((message) => messageIds.includes(message._id.toString()))
+//       .map((message) => ({
+//         ...message.toObject(),
+//         userId: mailbox.userId, // Attach userId from mailbox
+//       })),
+//   );
+
+//   // Check if any messages were marked as read
+//   if (updatedMessages.length === 0) {
+//     return res
+//       .status(404)
+//       .json({ message: "No messages were marked as read." });
+//   }
+
+//   // Fetch remaining messages, and exclude "Support Team" messages in flatMap
+//   const allMailInbox = await Mailbox.find()
+//     .sort("-createdAt") // Sort by creation date
+//     .populate("userId", "_id firstname lastname email photo"); // Populate user info
+
+//   if (messageData.from === "sentComponent") {
+//     const searchWord = "Support Team";
+
+//     // Flatten the messages into a single array
+//     const allMessages = allMailInbox.flatMap((mailbox) => {
+//       return mailbox.messages
+//         .filter(
+//           (message) => !message.to.match(new RegExp(searchWord, "i")), // Exclude messages matching the searchWord
+//         )
+//         .map((message) => ({
+//           ...message.toObject(), // Convert Mongoose message subdocument to plain object
+//           userId: mailbox.userId, // Add userId to each message
+//         }));
+//     });
+
+//     const sortedMessages = allMessages.sort((a, b) => {
+//       return new Date(b.createdAt) - new Date(a.createdAt);
+//     });
+
+//     return res.status(200).json({
+//       data: sortedMessages,
+//       message: "Messages marked as read successfully",
+//       // updatedMessages,
+//       from: "sentComponent",
+//     });
+//   }
+
+//   if (messageData.from === "userInboxComponent") {
+//     const allUserMail = await Mailbox.find({ userId: req.user._id })
+//       .limit(1)
+//       .sort("-createdAt")
+//       .populate("userId", "_id firstname lastname email photo");
+//     // Respond with the result
+//     return res.status(200).json({
+//       data: allUserMail,
+//       message: "Messages marked as read successfully",
+//       // updatedMessages,
+//       from: "userInboxComponent",
+//     });
+//   }
+
+//   const searchWord = "Support Team";
+
+//   // Flatten the messages into a single array
+//   const allMessages = allMailInbox.flatMap((mailbox) => {
+//     return mailbox.messages
+//       .filter((message) => message.to.match(new RegExp(searchWord, "i")))
+//       .map((message) => ({
+//         ...message.toObject(), // Convert Mongoose message subdocument to plain object
+//         userId: mailbox.userId, // Add userId to each message
+//       }));
+//   });
+
+//   const sortedMessages = allMessages.sort((a, b) => {
+//     return new Date(b.createdAt) - new Date(a.createdAt);
+//   });
+
+//   // Respond with the result
+//   res.status(200).json({
+//     data: sortedMessages,
+//     message: "Messages marked as read successfully",
+//     updatedMessages,
+//     from: "inboxComponent",
+//   });
+// });
+
 const adminMarkMailAsRead = asyncHandler(async (req, res) => {
   const { messageData } = req.body;
+  const { userId } = messageData;
 
-  if (
-    !messageData ||
-    !Array.isArray(messageData.messageData) ||
-    messageData.messageData.length === 0
-  ) {
+  if (!userId) {
     res.status(400);
-    throw new Error("No message IDs provided yet");
+    throw new Error("User ID is required");
   }
 
-  // Extract message IDs from the messageData
-  const messageIds = messageData.messageData.map(({ messageId }) => messageId);
-
-  // Find mailboxes that contain any of the message IDs
-  const mailboxes = await Mailbox.find({
-    "messages._id": { $in: messageIds },
-  });
-
-  // If no mailboxes are found, return a 404 response
-  if (!mailboxes || mailboxes.length === 0) {
-    return res.status(404).json({ message: "No messages found." });
-  }
-
-  // Update each message individually to set isRead to true
-  await Promise.all(
-    mailboxes.map((mailbox) => {
-      return Promise.all(
-        messageIds.map((messageId) => {
-          return Mailbox.updateOne(
-            { _id: mailbox._id, "messages._id": messageId },
-            { $set: { "messages.$.isRead": true } }
-          );
-        })
-      );
-    })
+  await Mailbox.updateOne(
+    { userId },
+    {
+      $set: {
+        "messages.$[msg].isRead": true,
+      },
+    },
+    {
+      arrayFilters: [
+        {
+          "msg.to": "Support Team",
+          "msg.isRead": false,
+        },
+      ],
+    }
   );
 
-  // Fetch updated messages
-  const updatedMessages = mailboxes.flatMap((mailbox) =>
-    mailbox.messages
-      .filter((message) => messageIds.includes(message._id.toString()))
-      .map((message) => ({
-        ...message.toObject(),
-        userId: mailbox.userId, // Attach userId from mailbox
-      }))
-  );
+  const updatedMailbox = await Mailbox.findOne({ userId })
+    .populate("userId", "_id firstname lastname email photo");
 
-  // Check if any messages were marked as read
-  if (updatedMessages.length === 0) {
-    return res
-      .status(404)
-      .json({ message: "No messages were marked as read." });
-  }
-
-  // Fetch remaining messages, and exclude "Support Team" messages in flatMap
-  const allMailInbox = await Mailbox.find()
-    .sort("-createdAt") // Sort by creation date
-    .populate("userId", "_id firstname lastname email photo"); // Populate user info
-
-  if (messageData.from === "sentComponent") {
-    const searchWord = "Support Team";
-
-    // Flatten the messages into a single array
-    const allMessages = allMailInbox.flatMap((mailbox) => {
-      return mailbox.messages
-        .filter(
-          (message) => !message.to.match(new RegExp(searchWord, "i")) // Exclude messages matching the searchWord
-        )
-        .map((message) => ({
-          ...message.toObject(), // Convert Mongoose message subdocument to plain object
-          userId: mailbox.userId, // Add userId to each message
-        }));
-    });
-
-    const sortedMessages = allMessages.sort((a, b) => {
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    });
-
-    return res.status(200).json({
-      data: sortedMessages,
-      message: "Messages marked as read successfully",
-      // updatedMessages,
-      from: "sentComponent",
-    });
-  }
-
-  if (messageData.from === "userInboxComponent") {
-    const allUserMail = await Mailbox.find({ userId: req.user._id })
-      .limit(1)
-      .sort("-createdAt")
-      .populate("userId", "_id firstname lastname email photo");
-    // Respond with the result
-    return res.status(200).json({
-      data: allUserMail,
-      message: "Messages marked as read successfully",
-      // updatedMessages,
-      from: "userInboxComponent",
-    });
-  }
-
-  const searchWord = "Support Team";
-
-  // Flatten the messages into a single array
-  const allMessages = allMailInbox.flatMap((mailbox) => {
-    return mailbox.messages
-      .filter((message) => message.to.match(new RegExp(searchWord, "i")))
-      .map((message) => ({
-        ...message.toObject(), // Convert Mongoose message subdocument to plain object
-        userId: mailbox.userId, // Add userId to each message
-      }));
-  });
-
-  const sortedMessages = allMessages.sort((a, b) => {
-    return new Date(b.createdAt) - new Date(a.createdAt);
-  });
-
-  // Respond with the result
-  res.status(200).json({
-    data: sortedMessages,
-    message: "Messages marked as read successfully",
-    updatedMessages,
-    from: "inboxComponent",
+  return res.status(200).json({
+    data: updatedMailbox,
+    message: "Messages marked as read successfully.",
   });
 });
 
@@ -436,14 +520,12 @@ const adminStarredMail = asyncHandler(async (req, res) => {
   const { messageData } = req.body;
   // console.log(req.body);
 
-    const errors = validationResult(req);
+  const errors = validationResult(req);
   if (!errors.isEmpty()) {
     // console.log(errors.array()); // Log all errors for debugging
     res.status(400);
     throw new Error(errors.array()[0].msg);
   }
-
-
 
   if (
     !messageData ||
@@ -469,19 +551,19 @@ const adminStarredMail = asyncHandler(async (req, res) => {
         // Toggle the isUserStarred value
         const result = await Mailbox.updateOne(
           { "messages._id": messageId },
-          { $set: { "messages.$.isUserStarred": !message.isUserStarred } }
+          { $set: { "messages.$.isUserStarred": !message.isUserStarred } },
         );
 
         // Return the result if the message was modified
         return result.modifiedCount
           ? { userId: mailbox.userId, messageId, isStarred: !message.isStarred }
           : null;
-      }
+      },
     );
 
     // Run all toggle-starred operations in parallel
     const updatedMessages = (await Promise.all(toggleStarredOperations)).filter(
-      Boolean
+      Boolean,
     );
 
     // Check if any messages were updated
@@ -503,8 +585,6 @@ const adminStarredMail = asyncHandler(async (req, res) => {
     });
   }
 
-
-
   // Map through message objects and prepare toggle-starred operations
   const toggleStarredOperations = messageData.messageData.map(
     async ({ messageId }) => {
@@ -519,19 +599,19 @@ const adminStarredMail = asyncHandler(async (req, res) => {
       // Toggle the isStarred value
       const result = await Mailbox.updateOne(
         { "messages._id": messageId },
-        { $set: { "messages.$.isStarred": !message.isStarred } }
+        { $set: { "messages.$.isStarred": !message.isStarred } },
       );
 
       // Return the result if the message was modified
       return result.modifiedCount
         ? { userId: mailbox.userId, messageId, isStarred: !message.isStarred }
         : null;
-    }
+    },
   );
 
   // Run all toggle-starred operations in parallel
   const updatedMessages = (await Promise.all(toggleStarredOperations)).filter(
-    Boolean
+    Boolean,
   );
 
   // Check if any messages were updated
@@ -566,7 +646,7 @@ const adminStarredMail = asyncHandler(async (req, res) => {
     const allMessages = allMail.flatMap((mailbox) => {
       return mailbox.messages
         .filter(
-          (message) => !message.to.match(new RegExp(searchWord, "i")) // Exclude messages matching the searchWord
+          (message) => !message.to.match(new RegExp(searchWord, "i")), // Exclude messages matching the searchWord
         )
         .map((message) => ({
           ...message.toObject(), // Convert Mongoose message subdocument to plain object
@@ -593,7 +673,7 @@ const adminStarredMail = asyncHandler(async (req, res) => {
     const allMessagesInbox = allMail.flatMap((mailbox) => {
       return mailbox.messages
         .filter(
-          (message) => message.to.match(new RegExp(searchWord, "i")) // Exclude messages matching the searchWord
+          (message) => message.to.match(new RegExp(searchWord, "i")), // Exclude messages matching the searchWord
         )
         .map((message) => ({
           ...message.toObject(), // Convert Mongoose message subdocument to plain object
@@ -608,7 +688,7 @@ const adminStarredMail = asyncHandler(async (req, res) => {
     const allMessagesSent = allMail.flatMap((mailbox) => {
       return mailbox.messages
         .filter(
-          (message) => !message.to.match(new RegExp(searchWord, "i")) // Exclude messages matching the searchWord
+          (message) => !message.to.match(new RegExp(searchWord, "i")), // Exclude messages matching the searchWord
         )
         .map((message) => ({
           ...message.toObject(), // Convert Mongoose message subdocument to plain object
@@ -663,7 +743,7 @@ const userDeleteMail = asyncHandler(async (req, res) => {
   // Delete messages with IDs in the userData array
   const deletedMail = await Mailbox.updateOne(
     { userId: userId },
-    { $pull: { messages: { _id: { $in: userData } } } }
+    { $pull: { messages: { _id: { $in: userData } } } },
   );
 
   if (!deletedMail) {
@@ -679,6 +759,7 @@ const userDeleteMail = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  sseController,
   addmail,
   getAllMail,
   getAllMailInbox,

@@ -37,7 +37,7 @@ const messageSchema = new Schema(
     createdAt: {
       type: Date,
       default: Date.now,
-    },
+    }, 
   },
   // { _id: false } // Prevents each message from having its own unique _id
 );

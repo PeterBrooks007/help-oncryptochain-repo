@@ -18,8 +18,8 @@ const sendEmail = async (subject, send_to, template, reply_to, cc) => {
   const mailGenerator = new MailGen({
     theme: "default",
     product: {
-      name: "vixcapital Platform",
-      link: "https://vixcapital.live/",
+      name: "help-oncryptochain Platform",
+      link: "https://help-oncryptochain.live/",
       // Optional product logo
       logo: 'https://res.cloudinary.com/dmgo9qi2y/image/upload/v1781226875/logo_wmqd2k.png',
        // Custom logo height
@@ -32,7 +32,7 @@ const sendEmail = async (subject, send_to, template, reply_to, cc) => {
 
   //Options for sending email
   const options = {
-    from: `vixcapital <${process.env.EMAIL_USER}>` ,
+    from: `help-oncryptochain <${process.env.EMAIL_USER}>` ,
     to: send_to,
     replyTo: reply_to,
     subject,

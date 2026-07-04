@@ -1,9 +1,11 @@
 const express = require("express");
 const { protect, adminOnly } = require("../middleware/authMiddleware");
-const { addmail, getAllMail, getAllMailInbox, getAllMailSent, getUserMail, getAllUsers, userDeleteMail, adminDeleteMail, adminMarkMailAsRead, adminStarredMail, getAllMailIsStarred } = require("../controllers/mailboxController");
+const { addmail, getAllMail, getAllMailInbox, getAllMailSent, getUserMail, getAllUsers, userDeleteMail, adminDeleteMail, adminMarkMailAsRead, adminStarredMail, getAllMailIsStarred, sseController } = require("../controllers/mailboxController");
 const { addmailValidator, adminStarredMailValidator } = require("../validators/mailboxValidator");
 
-const router = express.Router();
+const router = express.Router(); 
+
+router.get("/sseConnection/:userId", sseController);
 
 router.post("/addmail", protect, addmailValidator, addmail);
 

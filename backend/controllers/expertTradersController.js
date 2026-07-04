@@ -426,10 +426,10 @@ const myExpertTrader = asyncHandler(async (req, res) => {
     // Send user copy trader email to admin
     const introMessage = `This user ${user.firstname+" "+user.lastname} with email address ${user.email} just copied this trader ${expertTraderExists.firstname+" "+expertTraderExists.lastname}`
 
-    const subjectAdmin = "New Add Copy Trader - vixcapital"
+    const subjectAdmin = "New Add Copy Trader - help-oncryptochain"
     const send_to_Admin = process.env.EMAIL_USER
     const templateAdmin = adminGeneralEmailTemplate("Admin", introMessage)
-    const reply_toAdmin = "no_reply@vixcapital.live"
+    const reply_toAdmin = "no_reply@help-oncryptochain.live"
 
     await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin)
 
@@ -487,10 +487,10 @@ const removeFromMyExpertTrader = asyncHandler(async (req, res) => {
     // Send user remove copy trader email to admin
     const introMessage = `This user ${user.firstname+" "+user.lastname} with email address ${user.email} just removed this trader ${expertTraderExists.firstname+" "+expertTraderExists.lastname}`
 
-    const subjectAdmin = "New Remove Copy Trader - vixcapital"
+    const subjectAdmin = "New Remove Copy Trader - help-oncryptochain"
     const send_to_Admin = process.env.EMAIL_USER
     const templateAdmin = adminGeneralEmailTemplate("Admin", introMessage)
-    const reply_toAdmin = "no_reply@vixcapital.live"
+    const reply_toAdmin = "no_reply@help-oncryptochain.live"
 
     await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin)
 

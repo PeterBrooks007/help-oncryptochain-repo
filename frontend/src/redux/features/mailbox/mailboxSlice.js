@@ -52,6 +52,24 @@ export const getAllMail = createAsyncThunk(
   }
 );
 
+// getAllMailWithoutLoader
+export const getAllMailWithoutLoader = createAsyncThunk(
+  "mailbox/getAllMailWithoutLoader",
+  async (_, thunkAPI) => {
+    try {
+      return await mailboxService.getAllMail();
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 // getAllMailInbox
 export const getAllMailInbox = createAsyncThunk(
   "mailbox/getAllMailInbox",
@@ -109,6 +127,24 @@ export const getAllMailIsStarred = createAsyncThunk(
 // getUserMail
 export const getUserMail = createAsyncThunk(
   "mailbox/getUserMail",
+  async (_, thunkAPI) => {
+    try {
+      return await mailboxService.getUserMail();
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// getUserMailWithoutLoader
+export const getUserMailWithoutLoader = createAsyncThunk(
+  "mailbox/getUserMailWithoutLoader",
   async (_, thunkAPI) => {
     try {
       return await mailboxService.getUserMail();
@@ -291,29 +327,30 @@ const mailboxSlice = createSlice({
 
       //addmail
       .addCase(addmail.pending, (state) => {
-        state.isLoading = true;
+        state.isSemiLoading = true;
       })
       .addCase(addmail.fulfilled, (state, action) => {
-        state.isLoading = false;
+        state.isSemiLoading = false;
         state.isSuccess = true;
         state.isLoggedIn = true;
 
         if (action.payload.from === "support") {
-          state.allMailSent = action.payload.data;
+          state.allMails = action.payload.data;
+          // console.log("data from db", action.payload.data)
         }
         if (action.payload.from === "user") {
           state.allMails = action.payload.data;
         }
-        window.location.hash = "#sent";
+        // window.location.hash = "#sent";
 
         // console.log(action.payload);
-        toast.success(action.payload.message, {
-          position: "top-center",
-          transition: Slide,
-        });
+        // toast.success(action.payload.message, {
+        //   position: "top-center",
+        //   transition: Slide,
+        // });
       })
       .addCase(addmail.rejected, (state, action) => {
-        state.isLoading = false;
+        state.isSemiLoading = false;
         state.isError = true;
         state.message = action.payload;
         toast.error(action.payload);
@@ -336,6 +373,28 @@ const mailboxSlice = createSlice({
       })
       .addCase(getAllMail.rejected, (state, action) => {
         state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        toast.error(action.payload);
+      })
+
+      //getAllMailWithoutLoader
+      .addCase(getAllMailWithoutLoader.pending, (state) => {
+        // state.isLoading = true;
+      })
+      .addCase(getAllMailWithoutLoader.fulfilled, (state, action) => {
+        // state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.allMails = action.payload;
+        // toast.success(action.payload,  {
+        //     position: "top-center",
+        //     transition: Slide,
+        //   });
+        // console.log(action.payload);
+      })
+      .addCase(getAllMailWithoutLoader.rejected, (state, action) => {
+        // state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
         toast.error(action.payload);
@@ -429,6 +488,28 @@ const mailboxSlice = createSlice({
       })
       .addCase(getUserMail.rejected, (state, action) => {
         state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        toast.error(action.payload);
+      })
+
+      //getUserMailWithoutLoader
+      .addCase(getUserMailWithoutLoader.pending, (state) => {
+        // state.isLoading = true;
+      })
+      .addCase(getUserMailWithoutLoader.fulfilled, (state, action) => {
+        // state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.allMails = action.payload;
+        // toast.success(action.payload,  {
+        //     position: "top-center",
+        //     transition: Slide,
+        //   });
+        // console.log(action.payload);
+      })
+      .addCase(getUserMailWithoutLoader.rejected, (state, action) => {
+        // state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
         toast.error(action.payload);
@@ -537,15 +618,17 @@ const mailboxSlice = createSlice({
         state.isSuccess = true;
         state.isLoggedIn = true;
 
-        if(action.payload.from === "sentComponent" ) {
-          state.allMailSent = action.payload.data;
-        }
-        if(action.payload.from === "inboxComponent" ) {
-          state.allMailInbox = action.payload.data;
-        }
-        if(action.payload.from === "userInboxComponent" ) {
-          state.allMails = action.payload.data;
-        }
+        // console.log("action.payload", action.payload)
+
+        // if(action.payload.from === "sentComponent" ) {
+        //   state.allMailSent = action.payload.data;
+        // }
+        // if(action.payload.from === "inboxComponent" ) {
+        //   state.allMailInbox = action.payload.data;
+        // }
+        // if(action.payload.from === "userInboxComponent" ) {
+        //   state.allMails = action.payload.data;
+        // }
 
         // console.log(action.payload);
         // toast.success("Message(s) Mark as read", {

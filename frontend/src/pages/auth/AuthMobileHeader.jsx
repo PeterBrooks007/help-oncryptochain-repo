@@ -37,7 +37,7 @@ const AuthMobileHeader = ({ writeUp, buttonText, link, accountSetup }) => {
 
   const logoutUser = async () => {
     await dispatch(logout());
-    navigate("/auth/login");
+    navigate("/");
     dispatch(RESET_AUTH());
     dispatch(RESET_WITHDRAWAL());
     dispatch(RESET_DEPOSIT());
@@ -59,13 +59,13 @@ const AuthMobileHeader = ({ writeUp, buttonText, link, accountSetup }) => {
           sx={{ cursor: "pointer" }}
           display={{ xs: "flex", md: "none" }}
           onClick={() => {
-            navigate("/");
+            // navigate("/");
           }}
         >
            <img src={LogoImg} alt="logo" width={40} />
 
            <Typography variant="h6" fontWeight={"600"}>
-                       Vixcapital
+                       Oncryptochain
                       </Typography>
         </Stack>
         <Stack

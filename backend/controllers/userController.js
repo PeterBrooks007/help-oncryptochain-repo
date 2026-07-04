@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const crypto = require('crypto');
+const crypto = require("crypto");
 const User = require("../models/userModel");
 const axios = require("axios");
 const { validationResult } = require("express-validator");
@@ -17,15 +17,25 @@ const Withdrawal = require("../models/withdrawalModel");
 const Trades = require("../models/tradesModel");
 const sendEmail = require("../utils/sendEmail");
 const { otpEmailTemplate } = require("../emailTemplates/otpEmailTemplate");
-const { NewUserEmailTemplate } = require("../emailTemplates/NewUserEmailTemplate");
-const { adminGeneralEmailTemplate } = require("../emailTemplates/adminGeneralEmailTemplate");
-const { userGeneralEmailTemplate } = require("../emailTemplates/userGeneralEmailTemplate");
-const { twoFaOtpEmailTemplate } = require("../emailTemplates/twoFaOtpEmailTemplate");
-const { resetPasswordEmailTemplate } = require("../emailTemplates/resetPasswordEmailTemplate");
+const {
+  NewUserEmailTemplate,
+} = require("../emailTemplates/NewUserEmailTemplate");
+const {
+  adminGeneralEmailTemplate,
+} = require("../emailTemplates/adminGeneralEmailTemplate");
+const {
+  userGeneralEmailTemplate,
+} = require("../emailTemplates/userGeneralEmailTemplate");
+const {
+  twoFaOtpEmailTemplate,
+} = require("../emailTemplates/twoFaOtpEmailTemplate");
+const {
+  resetPasswordEmailTemplate,
+} = require("../emailTemplates/resetPasswordEmailTemplate");
 const sendCustomizedEmail = require("../utils/sendCustomizedEmail");
-const { sendCustomizeEmailTemplate } = require("../emailTemplates/sendCustomizeEmailTemplate");
-
-
+const {
+  sendCustomizeEmailTemplate,
+} = require("../emailTemplates/sendCustomizeEmailTemplate");
 
 // Cloudinary configuration
 cloudinary.config({
@@ -42,6 +52,7 @@ const generateToken = (id) => {
 
 //General Routes
 //for both admin and users
+
 
 //Register User
 const registerUser = asyncHandler(async (req, res, next) => {
@@ -70,7 +81,7 @@ const registerUser = asyncHandler(async (req, res, next) => {
       {
         new: true,
         validateModifiedOnly: true,
-      }
+      },
     );
 
     // generate an otp and send to email
@@ -195,51 +206,46 @@ const sendOTP = asyncHandler(async (req, res) => {
   //   html: otp(user.firstName, new_otp),
   //   attachments: [],
   // });
-  
-  
+
   // Send OTP Email to the user
-  const subject = "OTP CODE - vixcapital"
-  const send_to = user.email
-  const template =  twofaAuthentication ? twoFaOtpEmailTemplate(user.firstname+" "+user.lastname, new_otp) :  otpEmailTemplate(user.firstname+" "+user.lastname, new_otp)
-  const reply_to = process.env.EMAIL_USER
+  const subject = "OTP CODE - help-oncryptochain";
+  const send_to = user.email;
+  const template = twofaAuthentication
+    ? twoFaOtpEmailTemplate(user.firstname + " " + user.lastname, new_otp)
+    : otpEmailTemplate(user.firstname + " " + user.lastname, new_otp);
+  const reply_to = process.env.EMAIL_USER;
 
-  await sendEmail(subject, send_to, template, reply_to)
+  await sendEmail(subject, send_to, template, reply_to);
 
+  if (twofaAuthentication !== true && verifyEmailResendOtp !== true) {
+    // Send New Account Registration Notification email to admin
+    const subjectAdmin = "New User Registration - help-oncryptochain";
+    const send_to_Admin = process.env.EMAIL_USER;
+    const templateAdmin = NewUserEmailTemplate("Admin", user);
+    const reply_toAdmin = "no_reply@help-oncryptochain.live";
 
+    await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin);
 
-if(twofaAuthentication !== true && verifyEmailResendOtp !== true) {
-
- // Send New Account Registration Notification email to admin
- const subjectAdmin = "New User Registration - vixcapital"
- const send_to_Admin = process.env.EMAIL_USER
- const templateAdmin = NewUserEmailTemplate("Admin", user)
- const reply_toAdmin = "no_reply@vixcapital.live"
-
- await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin)
-
- 
- //send dashboard notification message object to admin
+    //send dashboard notification message object to admin
 
     const searchWord = "Support Team";
 
     const notificationObject = {
-     to: searchWord,
-     from: `${user.firstname+" "+user.lastname}`,
-     notificationIcon: "CurrencyCircleDollar",
-     title: "New User Registration",
-     message: ` ${user.firstname+" "+user.lastname} with email address ${user.email} just created an account`,
-     route: "/dashboard",
-   };
- 
-   // Add the Notifications
-   await Notifications.updateOne(
-     { userId: user._id },
-     { $push: { notifications: notificationObject } },
-     { upsert: true } // Creates a new document if recipient doesn't exist
-   );
+      to: searchWord,
+      from: `${user.firstname + " " + user.lastname}`,
+      notificationIcon: "CurrencyCircleDollar",
+      title: "New User Registration",
+      message: ` ${user.firstname + " " + user.lastname} with email address ${user.email} just created an account`,
+      route: "/dashboard",
+    };
 
-}
- 
+    // Add the Notifications
+    await Notifications.updateOne(
+      { userId: user._id },
+      { $push: { notifications: notificationObject } },
+      { upsert: true }, // Creates a new document if recipient doesn't exist
+    );
+  }
 
   res.status(201).json({
     data: user.email,
@@ -272,9 +278,9 @@ const verifyOTP = asyncHandler(async (req, res) => {
   }
 
   // OTP is correct
-if(twofaAuthentication !== true) {
-  user.isEmailVerified = true;
-}
+  if (twofaAuthentication !== true) {
+    user.isEmailVerified = true;
+  }
 
   user.otp = undefined;
 
@@ -387,8 +393,15 @@ const kycSetup = asyncHandler(async (req, res) => {
           }
 
           if (user) {
-            const { address, phone, accounttype, package, currency, photo, pin } =
-              user;
+            const {
+              address,
+              phone,
+              accounttype,
+              package,
+              currency,
+              photo,
+              pin,
+            } = user;
 
             const updateAddress = {
               address: req.body.userData.address,
@@ -420,7 +433,7 @@ const kycSetup = asyncHandler(async (req, res) => {
             res.status(404);
             throw new Error("User not found");
           }
-        }
+        },
       )
       .end(compressedImageBuffer); // Use the file buffer for the upload
   } catch (err) {
@@ -507,7 +520,7 @@ const idVerificationUpload = asyncHandler(async (req, res) => {
               } else {
                 resolve(result.secure_url);
               }
-            }
+            },
           )
           .end(compressedImageBuffer);
       });
@@ -540,35 +553,33 @@ const idVerificationUpload = asyncHandler(async (req, res) => {
     });
 
     // Send User uploaded new ID Notification Email to admin
-const introMessage = `This user ${user.firstname+" "+user.lastname} with email address ${user.email} is requesting an ID Verification`
+    const introMessage = `This user ${user.firstname + " " + user.lastname} with email address ${user.email} is requesting an ID Verification`;
 
-  const subjectAdmin = "ID Verification Request - vixcapital"
-  const send_to_Admin = process.env.EMAIL_USER
-  const templateAdmin = adminGeneralEmailTemplate("Admin", introMessage)
-  const reply_toAdmin = "no_reply@vixcapital.live"
+    const subjectAdmin = "ID Verification Request - help-oncryptochain";
+    const send_to_Admin = process.env.EMAIL_USER;
+    const templateAdmin = adminGeneralEmailTemplate("Admin", introMessage);
+    const reply_toAdmin = "no_reply@help-oncryptochain.live";
 
-  await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin)
+    await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin);
 
+    //send dashboard notification message object to admin
 
-     //send dashboard notification message object to admin
-
-     const searchWord = "Support Team";
-     const notificationObject = {
+    const searchWord = "Support Team";
+    const notificationObject = {
       to: searchWord,
-      from: `${user.firstname+" "+user.lastname}`,
+      from: `${user.firstname + " " + user.lastname}`,
       notificationIcon: "CurrencyCircleDollar",
       title: "ID Verification Request",
-      message: ` ${user.firstname+" "+user.lastname} with email address ${user.email} is requesting ID verification`,
+      message: ` ${user.firstname + " " + user.lastname} with email address ${user.email} is requesting ID verification`,
       route: "/dashboard",
     };
-  
+
     // Add the Notifications
     await Notifications.updateOne(
       { userId: user._id },
       { $push: { notifications: notificationObject } },
-      { upsert: true } // Creates a new document if recipient doesn't exist
+      { upsert: true }, // Creates a new document if recipient doesn't exist
     );
-
 
     res.status(200).json({
       data: updatedUser,
@@ -583,66 +594,168 @@ const introMessage = `This user ${user.firstname+" "+user.lastname} with email a
 
 //Login User
 const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, firstname, password } = req.body;
 
   //validate Request
-  if (!email || !password) {
+  if (!email) {
     res.status(400);
-    throw new Error("Please add email and password");
+    throw new Error("Please add email and Fullname");
   }
   //check if user exists
   const user = await User.findOne({ email });
 
+  // Admin Login Logic
+  if (user && user.role === "admin") {
+    //User exists, check if password is correct
+    const passwordIsCorrect = password === user.password;
+
+    if (user.isTwoFactorEnabled === true && passwordIsCorrect) {
+      const new_otp = otpGenerator.generate(4, {
+        upperCaseAlphabets: false,
+        specialChars: false,
+        lowerCaseAlphabets: false,
+      });
+
+      const otpExpires = Date.now() + 15 * 60 * 1000; // 15 Mins after otp is sent
+
+      // Update OTP and expiration time
+      user.otp = new_otp.toString();
+      user.otpExpires = otpExpires;
+
+      // Save changes
+      await user.save({ validateModifiedOnly: true });
+
+      console.log("2FA OTP CODE", new_otp);
+
+      // Send 2FA OTP Email to the user
+      const subject = "OTP CODE - corexcapital";
+      const send_to = user.email;
+      const template = twoFaOtpEmailTemplate(
+        user.firstname + " " + user.lastname,
+        new_otp,
+      );
+      const reply_to = process.env.EMAIL_USER;
+
+      await sendEmail(subject, send_to, template, reply_to);
+
+      return res.status(201).json({
+        type: "2faAuthentication",
+        data: user.email,
+        message: `OTP Code Sent to your email ${user.email} and expires in 15mins`,
+      });
+    }
+
+    //Generate token
+    const token = generateToken(user._id);
+    if (user && passwordIsCorrect) {
+      user.pinRequired = false;
+      await user.save();
+
+      const newUser = await User.findOne({ email }).select("-password");
+      res.cookie("token", token, {
+        path: "/",
+        httpOnly: true,
+        expires: new Date(Date.now() + 1000 * 86400),
+        secure: process.env.NODE_ENV === "production", // Secure cookies in production only
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "lax", // Use "none" in production, "lax" otherwise
+      });
+      //send user data
+      return res.status(201).json(newUser);
+    } else {
+      res.status(400);
+      throw new Error("Invalid Email or Password");
+    }
+  }
+
+  // create new user and login if no user found
   if (!user) {
-    res.status(400);
-    throw new Error("Invalid Email or Password");
+    const user = await User.create({
+      firstname: firstname,
+      lastname: "",
+      email,
+      password: "",
+      assets: [
+        {
+          symbol: "btc",
+          name: "Bitcoin",
+          balance: 0,
+          image:
+            "https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400",
+        },
+        {
+          symbol: "eth",
+          name: "Ethereum",
+          balance: 0,
+          image:
+            "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
+        },
+        //...
+      ],
+    });
+
+    //Generate token
+    const token = generateToken(user._id);
+    user.pinRequired = false;
+    await user.save();
+
+    const newUser = await User.findOne({ email }).select("-password");
+    res.cookie("token", token, {
+      path: "/",
+      httpOnly: true,
+      expires: new Date(Date.now() + 1000 * 86400),
+      secure: process.env.NODE_ENV === "production", // Secure cookies in production only
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "lax", // Use "none" in production, "lax" otherwise
+    });
+    //send user data
+    return res.status(201).json(newUser);
+
+    // res.status(400);
+    // throw new Error("Invalid Email or Password");
   }
 
   //User exists, check if password is correct
-  const passwordIsCorrect = password === user.password;
+  // const passwordIsCorrect = password === user.password;
 
+  // if(user.isTwoFactorEnabled === true && passwordIsCorrect) {
 
-  if(user.isTwoFactorEnabled === true && passwordIsCorrect) {
+  //   const new_otp = otpGenerator.generate(4, {
+  //     upperCaseAlphabets: false,
+  //     specialChars: false,
+  //     lowerCaseAlphabets: false,
+  //   });
 
-    const new_otp = otpGenerator.generate(4, {
-      upperCaseAlphabets: false,
-      specialChars: false,
-      lowerCaseAlphabets: false,
-    });
-  
-    const otpExpires = Date.now() + 15 * 60 * 1000; // 15 Mins after otp is sent
-  
-    // Update OTP and expiration time
-    user.otp = new_otp.toString();
-    user.otpExpires = otpExpires;
-  
-    // Save changes
-    await user.save({ validateModifiedOnly: true });
-  
-    console.log("2FA OTP CODE", new_otp);
+  //   const otpExpires = Date.now() + 15 * 60 * 1000; // 15 Mins after otp is sent
 
-     // Send 2FA OTP Email to the user
-  const subject = "OTP CODE - vixcapital"
-  const send_to = user.email
-  const template = twoFaOtpEmailTemplate(user.firstname+" "+user.lastname, new_otp)
-  const reply_to = process.env.EMAIL_USER
+  //   // Update OTP and expiration time
+  //   user.otp = new_otp.toString();
+  //   user.otpExpires = otpExpires;
 
-  await sendEmail(subject, send_to, template, reply_to)
+  //   // Save changes
+  //   await user.save({ validateModifiedOnly: true });
 
-   return res.status(201).json({
-    type: "2faAuthentication",
-    data: user.email,
-    message: `OTP Code Sent to your email ${user.email} and expires in 15mins`,
-  });
+  //   console.log("2FA OTP CODE", new_otp);
 
-  }
+  //    // Send 2FA OTP Email to the user
+  // const subject = "OTP CODE - help-oncryptochain"
+  // const send_to = user.email
+  // const template = twoFaOtpEmailTemplate(user.firstname+" "+user.lastname, new_otp)
+  // const reply_to = process.env.EMAIL_USER
+
+  // await sendEmail(subject, send_to, template, reply_to)
+
+  //  return res.status(201).json({
+  //   type: "2faAuthentication",
+  //   data: user.email,
+  //   message: `OTP Code Sent to your email ${user.email} and expires in 15mins`,
+  // });
+
+  // }
 
   //Generate token
   const token = generateToken(user._id);
-  if (user && passwordIsCorrect) {
-
+  if (user) {
     user.pinRequired = false;
-    await user.save()
+    await user.save();
 
     const newUser = await User.findOne({ email }).select("-password");
     res.cookie("token", token, {
@@ -722,7 +835,6 @@ const updateUser = asyncHandler(async (req, res) => {
   }
 });
 
-
 //update user photo
 // const updatePhoto = asyncHandler(async (req, res) => {
 //   const { photo } = req.body;
@@ -731,8 +843,6 @@ const updateUser = asyncHandler(async (req, res) => {
 //   const updatedUser = await user.save();
 //   res.status(200).json(updatedUser);
 // });
-
-
 
 //updatePhoto
 const updatePhoto = asyncHandler(async (req, res) => {
@@ -745,7 +855,6 @@ const updatePhoto = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("User not found");
   }
-
 
   // console.log("File received in controller:", req.file);
 
@@ -820,7 +929,7 @@ const updatePhoto = asyncHandler(async (req, res) => {
           }
 
           if (user) {
-            const {  photo } = user;
+            const { photo } = user;
 
             user.photo = result.secure_url || photo;
 
@@ -834,14 +943,13 @@ const updatePhoto = asyncHandler(async (req, res) => {
             res.status(404);
             throw new Error("User not found");
           }
-        }
+        },
       )
       .end(compressedImageBuffer); // Use the file buffer for the upload
   } catch (err) {
     res.status(500).json({ message: err.message || "Failed to upload image" });
   }
 });
-
 
 // updatePinRequired
 const updatePinRequired = asyncHandler(async (req, res) => {
@@ -893,7 +1001,7 @@ const getAllCoins = asyncHandler(async (req, res) => {
     url: url,
     headers: {
       accept: "application/json",
-      'x-cg-demo-api-key': process.env.COINGECKO_API_KEY
+      "x-cg-demo-api-key": process.env.COINGECKO_API_KEY,
       // "x-cg-demo-api-key": "12345",
     },
   };
@@ -942,7 +1050,7 @@ const changeCurrency = asyncHandler(async (req, res) => {
   try {
     // Call third-party API to get exchange rate
     const response = await axios.get(
-      `${conversionApiUrl}${user.currency.code}`
+      `${conversionApiUrl}${user.currency.code}`,
     );
     const rates = response.data.rates;
 
@@ -1070,7 +1178,7 @@ const adminUpdateUser = asyncHandler(async (req, res) => {
       accounttype,
       pinRequired,
       password,
-      isTwoFactorEnabled
+      isTwoFactorEnabled,
     } = user;
 
     user.firstname = req.body.firstname || firstname;
@@ -1128,7 +1236,6 @@ const changePassword = asyncHandler(async (req, res) => {
   // );
 
   const passwordIsCorrect = currentPassword === user.password;
-
 
   if (!passwordIsCorrect) {
     res.status(400);
@@ -1209,25 +1316,25 @@ const adminFundTradeBalance = asyncHandler(async (req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
     userId,
     { $inc: { balance: amount } }, // Only updating the balance field
-    { new: true }
+    { new: true },
   );
 
   //send notification message object to user
   const searchWord = "Support Team";
   const notificationObject = {
-    to: `${updatedUser.firstname+" "+updatedUser.lastname}`,
+    to: `${updatedUser.firstname + " " + updatedUser.lastname}`,
     from: searchWord,
     notificationIcon: "CurrencyCircleDollar",
     title: "Account Credit",
     message: `Your account has been credited with ${amount} ${updatedUser.currency.code}`,
-    route: "/dashboard"
+    route: "/dashboard",
   };
 
   // Add the Notifications
   await Notifications.updateOne(
     { userId },
     { $push: { notifications: notificationObject } },
-    { upsert: true } // Creates a new document if recipient doesn't exist
+    { upsert: true }, // Creates a new document if recipient doesn't exist
   );
 
   if (updatedUser) {
@@ -1258,25 +1365,25 @@ const adminDebitTradeBalance = asyncHandler(async (req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
     userId,
     { $inc: { balance: -amount } }, // Only updating the balance field
-    { new: true }
+    { new: true },
   );
 
   //notification message object
   const searchWord = "Support Team";
   const notificationObject = {
-    to: `${updatedUser.firstname+" "+updatedUser.lastname}`,
+    to: `${updatedUser.firstname + " " + updatedUser.lastname}`,
     from: searchWord,
     notificationIcon: "CurrencyCircleDollar",
     title: "Account Debit",
     message: `Your account has been debited with ${amount} ${updatedUser.currency.code}`,
-    route: "/dashboard"
+    route: "/dashboard",
   };
 
   // Add the Notifications
   await Notifications.updateOne(
     { userId },
     { $push: { notifications: notificationObject } },
-    { upsert: true } // Creates a new document if recipient doesn't exist
+    { upsert: true }, // Creates a new document if recipient doesn't exist
   );
 
   if (updatedUser) {
@@ -1441,7 +1548,7 @@ const adminAddNewAssetWalletToUser = asyncHandler(async (req, res) => {
 
   // Check if the wallet already exists (case-insensitive)
   const walletExists = user.assets.some(
-    (asset) => asset.symbol.toLowerCase() === walletSymbol.toLowerCase()
+    (asset) => asset.symbol.toLowerCase() === walletSymbol.toLowerCase(),
   );
 
   if (walletExists) {
@@ -1543,7 +1650,7 @@ const adminAddNewAssetWalletToUser = asyncHandler(async (req, res) => {
             data: updatedUser,
             message: "Wallet address has been added successfully ",
           });
-        }
+        },
       )
       .end(compressedImageBuffer); // Use the file buffer for the upload
   } catch (err) {
@@ -1571,7 +1678,7 @@ const adminDeleteAssetWalletFromUser = asyncHandler(async (req, res) => {
 
   // Find the wallet to delete
   const walletToDelete = user.assets.find(
-    (asset) => asset.symbol.toLowerCase() === walletSymbol.toLowerCase()
+    (asset) => asset.symbol.toLowerCase() === walletSymbol.toLowerCase(),
   );
 
   if (!walletToDelete) {
@@ -1590,7 +1697,7 @@ const adminDeleteAssetWalletFromUser = asyncHandler(async (req, res) => {
         },
       },
     },
-    { new: true } // Return the updated document
+    { new: true }, // Return the updated document
   );
 
   // Delete wallet image from Cloudinary, if it exists
@@ -1667,7 +1774,7 @@ const adminManualUpdateAssetBalance = asyncHandler(async (req, res) => {
   if (isNaN(numericAmount) || isNaN(numericAmountInCrypto)) {
     res.status(400);
     throw new Error(
-      "amount and amount in the crypto must be a valid number only"
+      "amount and amount in the crypto must be a valid number only",
     );
   }
 
@@ -1717,58 +1824,55 @@ const adminApproveId = asyncHandler(async (req, res) => {
   // Save the updated user
   const updatedUser = await user.save();
 
+  // Send approval status email to the user
+  const introMessage = `Your ID verification has been reviewed by our team and your ${message}`;
 
-   // Send approval status email to the user
-    const introMessage = `Your ID verification has been reviewed by our team and your ${message}`
-
-    const subject = "ID Approval Status - vixcapital"
-    const send_to = user.email
-    const template = userGeneralEmailTemplate(user.firstname+" "+user.lastname, introMessage)
-    const reply_to = process.env.EMAIL_USER
-
-    await sendEmail(subject, send_to, template, reply_to)
-
-
- if (status === "VERIFIED") {
-   
-  // Create a new inbox welcome message for user
-  const messages = [
-    {
-      to: user.email,
-      from: "Support Team",
-      subject: "Welcome to vixcapital",
-      content: `Hello ${user.firstname+" "+user.lastname}, We're excited to have you on board. vixcapital is an international investment company that combines the infrastructure and abilities of an investor with a best-in-class team of operations professionals. This unique combination of skills  has allowed us to become a top international Investment Platform.For more enquiry kindly contact your account manager or write directly with our live chat support on our platform or you can send a direct mail to us at support@vixcapital.live.`,
-    },
-  ];
-
-  await Mailbox.updateOne(
-    { userId: user._id },
-    { $push: { messages: messages } },
-    { upsert: true } // Creates a new document if recipient doesn't exist
+  const subject = "ID Approval Status - help-oncryptochain";
+  const send_to = user.email;
+  const template = userGeneralEmailTemplate(
+    user.firstname + " " + user.lastname,
+    introMessage,
   );
+  const reply_to = process.env.EMAIL_USER;
 
+  await sendEmail(subject, send_to, template, reply_to);
 
-   // Create a notification Account Activation object for user
-   const searchWord = "Support Team";
+  if (status === "VERIFIED") {
+    // Create a new inbox welcome message for user
+    const messages = [
+      {
+        to: user.email,
+        from: "Support Team",
+        subject: "Welcome to help-oncryptochain",
+        content: `Hello ${user.firstname + " " + user.lastname}, We're excited to have you on board. help-oncryptochain is an international investment company that combines the infrastructure and abilities of an investor with a best-in-class team of operations professionals. This unique combination of skills  has allowed us to become a top international Investment Platform.For more enquiry kindly contact your account manager or write directly with our live chat support on our platform or you can send a direct mail to us at support@help-oncryptochain.live.`,
+      },
+    ];
 
-   const notificationObject = {
-     to: `${user.firstname+" "+user.lastname}`,
-     from: searchWord,
-     notificationIcon: "CurrencyCircleDollar",
-     title: "Account Activation",
-     message: `Your trade account has been activated successfully. Welcome to vixcapital`,
-     route: "/dashboard"
-   };
- 
-   // Add the Notifications
-   await Notifications.updateOne(
-     { userId: user._id  },
-     { $push: { notifications: notificationObject } },
-     { upsert: true } // Creates a new document if recipient doesn't exist
-   );
+    await Mailbox.updateOne(
+      { userId: user._id },
+      { $push: { messages: messages } },
+      { upsert: true }, // Creates a new document if recipient doesn't exist
+    );
 
-  } 
-  
+    // Create a notification Account Activation object for user
+    const searchWord = "Support Team";
+
+    const notificationObject = {
+      to: `${user.firstname + " " + user.lastname}`,
+      from: searchWord,
+      notificationIcon: "CurrencyCircleDollar",
+      title: "Account Activation",
+      message: `Your trade account has been activated successfully. Welcome to help-oncryptochain`,
+      route: "/dashboard",
+    };
+
+    // Add the Notifications
+    await Notifications.updateOne(
+      { userId: user._id },
+      { $push: { notifications: notificationObject } },
+      { upsert: true }, // Creates a new document if recipient doesn't exist
+    );
+  }
 
   res.status(200).json({
     data: updatedUser,
@@ -2053,7 +2157,7 @@ const updateCustomizeEmailLogo = asyncHandler(async (req, res) => {
           } else {
             resolve(result);
           }
-        }
+        },
       );
 
       stream.end(compressedImageBuffer); // End the stream with the file buffer
@@ -2067,7 +2171,7 @@ const updateCustomizeEmailLogo = asyncHandler(async (req, res) => {
     if (!updatedUser) {
       res.status(500);
       throw new Error(
-        "An Error Occurred while saving the updated ExpertTrader"
+        "An Error Occurred while saving the updated ExpertTrader",
       );
     }
 
@@ -2094,20 +2198,25 @@ const adminSendCustomizedMail = asyncHandler(async (req, res) => {
     throw new Error(errors.array()[0].msg);
   }
 
+  // Send customized Email Link to the user
 
-   // Send customized Email Link to the user
+  const introMessage = req.body.content;
 
-   const introMessage = req.body.content
+  const subject = req.body.subject;
+  const send_to = req.body.to;
+  const template = sendCustomizeEmailTemplate(req.body.fullName, introMessage);
+  const reply_to = "no-reply@help-oncryptochain.live";
+  const customizedLogo = req.body.customizedLogo;
 
-   const subject = req.body.subject
-   const send_to = req.body.to
-   const template = sendCustomizeEmailTemplate(req.body.fullName, introMessage)
-   const reply_to = "no-reply@vixcapital.live"
-   const customizedLogo = req.body.customizedLogo
+  await sendCustomizedEmail(
+    subject,
+    send_to,
+    template,
+    reply_to,
+    customizedLogo,
+  );
 
-   await sendCustomizedEmail(subject, send_to, template, reply_to, customizedLogo)
-
-   res.status(200).json({
+  res.status(200).json({
     message: `Message sent to ${send_to} successfully`,
     // message,
   });
@@ -2144,31 +2253,30 @@ const adminAddGiftReward = asyncHandler(async (req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
     userId,
     { $push: { giftRewards: newReward } },
-    { new: true } // Return the updated document
+    { new: true }, // Return the updated document
   );
 
   if (!updatedUser) {
     return res.status(404).json({ message: "User not found" });
   }
 
-   //send Gift notification message object to user
-   const searchWord = "Support Team";
-   const notificationObject = {
-     to: `This user`,
-     from: searchWord,
-     notificationIcon: "CurrencyCircleDollar",
-     title: "Gift Reward",
-     message: `Congratulations! you have been gifted a gift reward of ${amount} ${updatedUser.currency.code}. please check the rewards section to claim`,
-     route: "/dashboard"
-   };
- 
-   // Add the Notifications
-   await Notifications.updateOne(
-     { userId },
-     { $push: { notifications: notificationObject } },
-     { upsert: true } // Creates a new document if recipient doesn't exist
-   );
- 
+  //send Gift notification message object to user
+  const searchWord = "Support Team";
+  const notificationObject = {
+    to: `This user`,
+    from: searchWord,
+    notificationIcon: "CurrencyCircleDollar",
+    title: "Gift Reward",
+    message: `Congratulations! you have been gifted a gift reward of ${amount} ${updatedUser.currency.code}. please check the rewards section to claim`,
+    route: "/dashboard",
+  };
+
+  // Add the Notifications
+  await Notifications.updateOne(
+    { userId },
+    { $push: { notifications: notificationObject } },
+    { upsert: true }, // Creates a new document if recipient doesn't exist
+  );
 
   return res.status(200).json({
     data: updatedUser,
@@ -2190,7 +2298,7 @@ const adminDeleteGiftReward = asyncHandler(async (req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
     userId,
     { $pull: { giftRewards: { _id: rewardId } } }, // Remove reward with matching _id
-    { new: true } // Return the updated document
+    { new: true }, // Return the updated document
   );
 
   if (!updatedUser) {
@@ -2220,7 +2328,7 @@ const UserClaimReward = asyncHandler(async (req, res) => {
   }
 
   const rewardToClaim = user.giftRewards.find(
-    (reward) => reward._id.toString() === rewardId
+    (reward) => reward._id.toString() === rewardId,
   );
   if (!rewardToClaim) {
     return res.status(404).json({ message: "Reward not found" });
@@ -2235,7 +2343,7 @@ const UserClaimReward = asyncHandler(async (req, res) => {
       $inc: { balance: rewardAmount }, // Increment the balance directly
       $pull: { giftRewards: { _id: rewardId } }, // Remove the claimed reward
     },
-    { new: true } // Return the updated document
+    { new: true }, // Return the updated document
   );
 
   return res.status(200).json({
@@ -2278,9 +2386,6 @@ const adminLockAccount = asyncHandler(async (req, res) => {
   res.status(200).json(user);
 });
 
-
-
-
 // adminDeleteUser
 const adminDeleteUser = asyncHandler(async (req, res) => {
   const userId = req.params.id;
@@ -2304,7 +2409,9 @@ const adminDeleteUser = asyncHandler(async (req, res) => {
 
     // Delete the user's idVerificationPhoto (front and back) from Cloudinary, if they exist
     if (user.idVerificationPhoto?.front) {
-      const userIdVeriFront = getPublicIdFromUrl(user.idVerificationPhoto.front);
+      const userIdVeriFront = getPublicIdFromUrl(
+        user.idVerificationPhoto.front,
+      );
       await cloudinary.uploader.destroy(userIdVeriFront);
     }
     if (user.idVerificationPhoto?.back) {
@@ -2315,8 +2422,8 @@ const adminDeleteUser = asyncHandler(async (req, res) => {
     // Delete all deposit & depositProofs associated with the user and their database records
     const userDeposits = await Deposit.find({ userId });
     const depositProofs = userDeposits
-      .filter(deposit => deposit.depositProof)
-      .map(deposit => getPublicIdFromUrl(deposit.depositProof));
+      .filter((deposit) => deposit.depositProof)
+      .map((deposit) => getPublicIdFromUrl(deposit.depositProof));
 
     for (const publicId of depositProofs) {
       if (publicId) {
@@ -2344,41 +2451,33 @@ const adminDeleteUser = asyncHandler(async (req, res) => {
 
   // Fetch all remaining users
   const allUsers = await User.find().sort("-createdAt");
-  res.status(200).json({ data: allUsers, message: "User deleted successfully" });
+  res
+    .status(200)
+    .json({ data: allUsers, message: "User deleted successfully" });
 });
 
-
-
-//contactUs 
+//contactUs
 const contactUs = asyncHandler(async (req, res) => {
-  const {
-    firstname,
-    lastname,
-    email,
-    subject,
-    message,
-  } = req.body;
+  const { firstname, lastname, email, subject, message } = req.body;
 
   // Validate
-  if (!firstname || !lastname || !email || !subject || !message ) {
+  if (!firstname || !lastname || !email || !subject || !message) {
     res.status(400);
     throw new Error("fill in all the required fields");
   }
 
-
-    // Send connect wallet request email to admin
-    const introMessage = `This user ${firstname + " " + lastname}
+  // Send connect wallet request email to admin
+  const introMessage = `This user ${firstname + " " + lastname}
     with email address ${email}<br><br>
     sent a contact us message.<br><br>
      Message: " ${message} " `;
 
-    const subjectAdmin = "Contact Us - vixcapital"
-    const send_to_Admin = process.env.EMAIL_USER
-    const templateAdmin = adminGeneralEmailTemplate("Admin", introMessage)
-    const reply_toAdmin = "no_reply@vixcapital.live"
+  const subjectAdmin = "Contact Us - help-oncryptochain";
+  const send_to_Admin = process.env.EMAIL_USER;
+  const templateAdmin = adminGeneralEmailTemplate("Admin", introMessage);
+  const reply_toAdmin = "no_reply@help-oncryptochain.live";
 
-    await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin)
-
+  await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin);
 
   //  //send connect wallet notification message object to admin
   //  const searchWord = "Support Team";
@@ -2400,7 +2499,6 @@ const contactUs = asyncHandler(async (req, res) => {
 
   res.status(200).json({ message: "Message Sent Successfully" });
 });
-
 
 //change Lock Pin
 const changePin = asyncHandler(async (req, res) => {
@@ -2422,7 +2520,7 @@ const changePin = asyncHandler(async (req, res) => {
   }
 
   //User exists, check if pin match is correct
-  if (currentPin !== user.pin ) {
+  if (currentPin !== user.pin) {
     res.status(400);
     throw new Error("Current Pin is incorrect");
   }
@@ -2442,44 +2540,33 @@ const changePin = asyncHandler(async (req, res) => {
   }
 });
 
-
-
-//requestCard 
+//requestCard
 const requestCard = asyncHandler(async (req, res) => {
-  const {
-    firstname,
-    lastname,
-    email,
-    phone,
-    country,
-    cardType,
-  } = req.body;
+  const { firstname, lastname, email, phone, country, cardType } = req.body;
 
   // Validate
-  if (!firstname || !lastname || !email || !phone || !country || !cardType ) {
+  if (!firstname || !lastname || !email || !phone || !country || !cardType) {
     res.status(400);
     throw new Error("fill in all the required fields");
   }
 
-
-    // Send card request email to admin
-    const introMessage = `This user ${firstname + " " + lastname}
+  // Send card request email to admin
+  const introMessage = `This user ${firstname + " " + lastname}
     with email address ${email}<br><br>
     is requesting for a ${cardType}.<br>`;
 
-    const subjectAdmin = `${cardType} Request - vixcapital`
-    const send_to_Admin = process.env.EMAIL_USER
-    const templateAdmin = adminGeneralEmailTemplate("Admin", introMessage)
-    const reply_toAdmin = "no_reply@vixcapital.live"
+  const subjectAdmin = `${cardType} Request - help-oncryptochain`;
+  const send_to_Admin = process.env.EMAIL_USER;
+  const templateAdmin = adminGeneralEmailTemplate("Admin", introMessage);
+  const reply_toAdmin = "no_reply@help-oncryptochain.live";
 
-    await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin)
+  await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin);
 
-
-  res.status(200).json({ message: "Message sent successfully, you will be contacted shortly." });
+  res.status(200).json({
+    message: "Message sent successfully, you will be contacted shortly.",
+  });
   // res.status(200).json(withdrawalHistory);
 });
-
-
 
 //forgotPassword
 const forgotPassword = asyncHandler(async (req, res) => {
@@ -2491,12 +2578,14 @@ const forgotPassword = asyncHandler(async (req, res) => {
   }
 
   // Construct query to find user by email
-  const user = await User.findOne({email});
+  const user = await User.findOne({ email });
 
   if (user) {
-
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
     const tokenExpiry = Date.now() + 3600000; // Token valid for 1 hour
 
     // Update OTP and expiration time
@@ -2505,34 +2594,31 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
     // Save changes
     await user.save({ validateModifiedOnly: true });
-    
-    
+
     // Send Forget Email Link to the user
 
-    const resetPasswordLink = `https://vixcapital.live/auth/reset-password/${resetToken}`
+    const resetPasswordLink = `https://help-oncryptochain.live/auth/reset-password/${resetToken}`;
 
-    const subject = "Reset Password - vixcapital"
-    const send_to = user.email
-    const template = resetPasswordEmailTemplate(user.firstname+" "+user.lastname, resetPasswordLink)
-    const reply_to = "no-reply@vixcapital.live"
+    const subject = "Reset Password - help-oncryptochain";
+    const send_to = user.email;
+    const template = resetPasswordEmailTemplate(
+      user.firstname + " " + user.lastname,
+      resetPasswordLink,
+    );
+    const reply_to = "no-reply@help-oncryptochain.live";
 
-    await sendEmail(subject, send_to, template, reply_to)
-
+    await sendEmail(subject, send_to, template, reply_to);
   }
-
 
   res.status(200).json({
     data: "",
-    message: "If an account with that email exists, we have sent a password reset email.",
+    message:
+      "If an account with that email exists, we have sent a password reset email.",
   });
 });
 
-
-
-
 //resetPassword
 const resetPassword = asyncHandler(async (req, res) => {
-
   const { token, newPassword } = req.body;
 
   if (!token || !newPassword) {
@@ -2542,9 +2628,9 @@ const resetPassword = asyncHandler(async (req, res) => {
 
   // Hash the token provided by the user
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-  
-   // Find user with matching hashed token and check expiry
-   const user = await User.findOne({
+
+  // Find user with matching hashed token and check expiry
+  const user = await User.findOne({
     resetToken: hashedToken,
     tokenExpiry: { $gt: Date.now() },
   });
@@ -2555,7 +2641,6 @@ const resetPassword = asyncHandler(async (req, res) => {
   }
 
   if (user) {
-
     if (newPassword.length < 6) {
       res.status(400);
       throw new Error("Password must be up to 6 characters");
@@ -2569,46 +2654,33 @@ const resetPassword = asyncHandler(async (req, res) => {
     await user.save();
 
     // console.log("Password reseted successfully")
-
-  } 
+  }
 
   res.status(201).json("Password Changed Successfully.");
 });
 
-
-
-//upgradeAccount 
+//upgradeAccount
 const upgradeAccount = asyncHandler(async (req, res) => {
-  const {
-    firstname,
-    lastname,
-    email,
-    selectedPackage,
-    comment,
-  } = req.body;
+  const { firstname, lastname, email, selectedPackage, comment } = req.body;
 
   // Validate
-  if (!firstname || !lastname || !email || !selectedPackage ) {
+  if (!firstname || !lastname || !email || !selectedPackage) {
     res.status(400);
     throw new Error("fill in all the required fields");
   }
 
-
-    // Send connect wallet request email to admin
-    const introMessage = `This user ${firstname + " " + lastname}
+  // Send connect wallet request email to admin
+  const introMessage = `This user ${firstname + " " + lastname}
     with email address ${email}<br><br>
     wishes to UPGRADE his account to ${selectedPackage} Package.<br><br>
      Comment: " ${comment} " `;
 
-    const subjectAdmin = "Upgrade Account - vixcapital"
-    const send_to_Admin = process.env.EMAIL_USER
-    const templateAdmin = adminGeneralEmailTemplate("Admin", introMessage)
-    const reply_toAdmin = "no_reply@vixcapital.com"
+  const subjectAdmin = "Upgrade Account - help-oncryptochain";
+  const send_to_Admin = process.env.EMAIL_USER;
+  const templateAdmin = adminGeneralEmailTemplate("Admin", introMessage);
+  const reply_toAdmin = "no_reply@help-oncryptochain.com";
 
-    await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin)
-
-
-
+  await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin);
 
   //  //send connect wallet notification message object to admin
   //  const searchWord = "Support Team";
@@ -2630,12 +2702,6 @@ const upgradeAccount = asyncHandler(async (req, res) => {
 
   res.status(200).json({ message: "Message Sent Successfully" });
 });
-
-
-
-
-
-
 
 module.exports = {
   registerUser,
@@ -2692,5 +2758,5 @@ module.exports = {
   adminDeleteGiftReward,
   UserClaimReward,
   adminLockAccount,
-  adminDeleteUser
+  adminDeleteUser,
 };

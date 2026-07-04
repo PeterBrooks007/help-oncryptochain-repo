@@ -2,7 +2,7 @@ const otpEmailTemplate = (name, otp) => {
     const email = {
         body: {
             name,
-            intro: 'Welcome to vixcapital trading platform! We\'re very excited to have you on board. <br><br> To enhance the security of your account, we kindly request you to complete the email verification process. This simple step not only safeguards your account against unauthorized access but also ensures you receive critical notifications regarding your trades and account activities',
+            intro: 'Welcome to help-oncryptochain trading platform! We\'re very excited to have you on board. <br><br> To enhance the security of your account, we kindly request you to complete the email verification process. This simple step not only safeguards your account against unauthorized access but also ensures you receive critical notifications regarding your trades and account activities',
             action: {
                 instructions: 'Here is your OTP verification code:',
                 button: {
@@ -44,7 +44,7 @@ const otpEmailTemplate = (name, otp) => {
 //           button: {
 //             color: "#386904", // Optional action button color
 //             text: "Go to dashboard",
-//             link: "https://vixcapital.live",
+//             link: "https://help-oncryptochain.live",
 //           },
 //         },
 //         outro: "We thank you for your purchase",

@@ -33,7 +33,7 @@ const Root = () => {
         // }}
 
       >
-        <HomeHeader />
+        {/* <HomeHeader /> */}
         <Outlet />
         {/* <HomeFooter /> */}
       </Box>

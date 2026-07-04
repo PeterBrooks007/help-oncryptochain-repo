@@ -99,7 +99,7 @@ export default function AllUsersTable({ allUsers }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const size = UseWindowSize();
+  const size = UseWindowSize()
 
   // const { allUsers } = useSelector((state) => state.auth);
 

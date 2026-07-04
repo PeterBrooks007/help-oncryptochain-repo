@@ -1149,18 +1149,18 @@ const authSlice = createSlice({
             })
           );
   
-          toast.success(action.payload.message, {
-            position: "top-center",
-            transition: Slide,
-          });
+          // toast.success(action.payload.message, {
+          //   position: "top-center",
+          //   transition: Slide,
+          // });
 
         } else {
 
           state.user = action.payload;
-          toast.success("Login Successful", {
-            position: "top-center",
-            transition: Slide,
-          });
+          // toast.success("Login Successful", {
+          //   position: "top-center",
+          //   transition: Slide,
+          // });
 
         }
       
@@ -1172,10 +1172,10 @@ const authSlice = createSlice({
         state.isError = true;
         state.message = action.payload;
         state.user = null;
-        toast.error(action.payload, {
-          position: "top-center",
-          transition: Slide,
-        });
+        // toast.error(action.payload, {
+        //   position: "top-center",
+        //   transition: Slide,
+        // });
       })
 
       //Logout User

@@ -50,7 +50,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
 
   const { user, isLoading, isLoggedIn, isSuccess, is2FARequired } = useSelector(
-    (state) => state.auth
+    (state) => state.auth,
   );
 
   const loginUser = async (e) => {
@@ -70,7 +70,6 @@ const Login = () => {
   };
 
   useEffect(() => {
-
     if (isSuccess && isLoggedIn && is2FARequired) {
       navigate("/auth/2faAuthentication");
       return;
@@ -112,7 +111,7 @@ const Login = () => {
         height="90vh"
         justifyContent="space-between"
         position={"relative"}
-        sx={{overflowX: "hidden"}}
+        sx={{ overflowX: "hidden" }}
       >
         <Box
           position={"absolute"}
@@ -129,9 +128,9 @@ const Login = () => {
         {/* Top Bar with "Already have an account?" */}
 
         <AuthMobileHeader
-          writeUp={"Don't have an account ?"}
-          buttonText={"Register"}
-          link={"/auth/register"}
+          writeUp={"Login to your admin account"}
+          buttonText={"Admin"}
+          // link={"/auth/register"}
         />
 
         {/* Centered Login Form */}
@@ -145,14 +144,14 @@ const Login = () => {
                   textAlign={"center"}
                   pt={2}
                 >
-                  Login with your Vixcapital Credendtials
+                  Login with your Admin Credentials
                 </Typography>
                 <Typography
                   variant="subtitle2"
                   fontWeight={"600"}
                   textAlign={"center"}
                 >
-                  Don&apos;t have an account yet ? go to register.
+                  {/* Don&apos;t have an account yet ? go to register. */}
                 </Typography>
               </Stack>
 
@@ -296,7 +295,7 @@ const Login = () => {
                       }}
                     />
 
-                    <Stack justifyContent={"flex-end"} alignItems={"flex-end"}>
+                    {/* <Stack justifyContent={"flex-end"} alignItems={"flex-end"}>
                       <Link
                         sx={{ color: "", textDecoration: "none", mt: -1.5 }}
                         component={RouterLink}
@@ -316,7 +315,7 @@ const Login = () => {
                           Forgot Credentials ?
                         </Button>
                       </Link>
-                    </Stack>
+                    </Stack> */}
 
                     <Button
                       fullWidth

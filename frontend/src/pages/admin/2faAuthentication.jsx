@@ -1,5 +1,6 @@
 import {
   Box,
+  IconButton,
   Paper,
   Stack,
   Typography,
@@ -8,21 +9,27 @@ import {
 import { useEffect, useState } from "react";
 import Header from "./adminComponents/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { getLoginStatus, twofaAuthentication } from "../../redux/features/auth/authSlice";
+import {
+  getLoginStatus,
+  twofaAuthentication,
+} from "../../redux/features/auth/authSlice";
 import LoadingScreen from "../../components/LoadingScreen";
 import { tokens } from "../../theme";
 import { IOSSwitch } from "../dashboard/Profile";
 import UseWindowSize from "../../hooks/UseWindowSize";
 import AllUsersSkeleton from "./adminSkeletons/AllUsersSkeleton";
+import { ArrowLeft } from "@phosphor-icons/react";
+import { useNavigate } from "react-router-dom";
 
 const ChangePassword = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const size = UseWindowSize();
 
-  const [pageLoading, setPageLoading] = useState(true);  // Track event loading
-
+  const [pageLoading, setPageLoading] = useState(true); // Track event loading
 
   const { isLoading, user } = useSelector((state) => state.auth);
   const elevation = theme.palette.mode === "light" ? 1 : 0;
@@ -31,48 +38,39 @@ const ChangePassword = () => {
   //   dispatch(getLoginStatus());
   // }, [dispatch]);
 
-  
   useEffect(() => {
     setTimeout(() => {
-      setPageLoading(false);  
+      setPageLoading(false);
     }, 100); // Simulate a 2-second loading delay
   }, []);
-
 
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    if(user?.isTwoFactorEnabled) {
+    if (user?.isTwoFactorEnabled) {
       setChecked(user?.isTwoFactorEnabled);
     }
   }, [user?.isTwoFactorEnabled]);
 
-// Handle switch change
-const handleSwitchChange = (event) => {
-  const isChecked = event.target.checked;
-  setChecked(isChecked); // Update the checked state directly
+  // Handle switch change
+  const handleSwitchChange = (event) => {
+    const isChecked = event.target.checked;
+    setChecked(isChecked); // Update the checked state directly
 
-  setTimeout(() => {
-    handleFormSubmit(isChecked); 
-  }, 600); 
-};
+    setTimeout(() => {
+      handleFormSubmit(isChecked);
+    }, 600);
+  };
 
-  
   const handleFormSubmit = async (isChecked) => {
-
     const userData = {
-      isTwoFactorEnabled: isChecked
-    }
+      isTwoFactorEnabled: isChecked,
+    };
 
     // console.log(userData);
 
-
     await dispatch(twofaAuthentication(userData));
   };
-
-
-
-
 
   return (
     <>
@@ -82,9 +80,25 @@ const handleSwitchChange = (event) => {
         <Box m={"20px"} height={"90vh"} overflowY={"hidden"} pb={5}>
           <Stack
             direction={"row"}
-            justifyContent={"space-between"}
-            alignItems={"center"}
+            // justifyContent={"space-between"}
+            alignItems={"flex-start"}
+            spacing={2}
+            pb={2}
           >
+            <IconButton
+              sx={{
+                backgroundColor: `${
+                  theme.palette.mode === "light"
+                    ? "#f2f2f2"
+                    : colors.dashboardbackground[100]
+                }`,
+                color: theme.palette.mode === "light" ? "#202020" : "white",
+                borderRadius: "10px",
+              }}
+              onClick={() => navigate("/admin")}
+            >
+              <ArrowLeft weight="bold" />
+            </IconButton>
             <Header
               title={"2fa Authentication"}
               subtitle={

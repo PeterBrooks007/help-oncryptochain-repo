@@ -1,6 +1,6 @@
 import { Box, Button, Typography, useMediaQuery } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,6 +17,7 @@ import {
 import { connectSocket, socket } from "../../socket";
 import { useIdleTimer } from "react-idle-timer";
 // import Topbar from "./Topbar";
+import { useSSEConnection } from "../../hooks/useSSEConnection";
 
 const AdminRoot = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -24,38 +25,43 @@ const AdminRoot = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const { pathname } = useLocation();
+  const pathnameRef = useRef(pathname);
+
   const { user, isLoggedIn, isLoading, singleUser } = useSelector(
-    (state) => state.auth
+    (state) => state.auth,
   );
 
+  //use sseCONNECTION here
+  useSSEConnection(user, pathnameRef);
+
   //socket connection
-  useEffect(() => {
-    if (isLoggedIn && user?._id) {
-      if (!socket) {
-        connectSocket(user?._id); // Ensure connectSocket initializes the socket
-      }
+  // useEffect(() => {
+  //   if (isLoggedIn && user?._id) {
+  //     if (!socket) {
+  //       connectSocket(user?._id); // Ensure connectSocket initializes the socket
+  //     }
 
-      if (socket) {
-        // Register socket ID with server
-        socket.emit("registerSocket", user?._id);
+  //     if (socket) {
+  //       // Register socket ID with server
+  //       socket.emit("registerSocket", user?._id);
 
-        // Notify server the user is online
-        socket.emit("userOnline", user?._id);
+  //       // Notify server the user is online
+  //       socket.emit("userOnline", user?._id);
 
-        socket.on("updateStatus", (data) => {
-          // console.log("data", data);
-          dispatch(SETALLUSERS(data.allUser));
-          // dispatch(SETSINGLEUSERS(data.singleUser));
-          
-        });
+  //       socket.on("updateStatus", (data) => {
+  //         // console.log("data", data);
+  //         dispatch(SETALLUSERS(data.allUser));
+  //         // dispatch(SETSINGLEUSERS(data.singleUser));
+  //       });
 
-        // Cleanup event listeners only
-        return () => {
-          socket?.off("updateStatus");
-        };
-      }
-    }
-  }, [isLoggedIn, user?._id, dispatch]);
+  //       // Cleanup event listeners only
+  //       return () => {
+  //         socket?.off("updateStatus");
+  //       };
+  //     }
+  //   }
+  // }, [isLoggedIn, user?._id, dispatch]);
 
   useEffect(() => {
     if (isLoggedIn && user === null) {
@@ -68,7 +74,7 @@ const AdminRoot = () => {
   }, [dispatch]);
 
   if (!isLoading && isLoggedIn === false) {
-    navigate("/auth/login");
+    navigate("/");
   }
 
   if (!isLoading && user?.pinRequired === true) {
@@ -106,26 +112,25 @@ const AdminRoot = () => {
     }
   }, [dispatch]);
 
+  //code if user is Idle
+  const idleTimerRef = useRef(null);
+  const ONE_MINUTE = 60000; // 1 minute in milliseconds
+  const FIVE_MINUTES = 3 * ONE_MINUTE; // 5 minutes in milliseconds
 
-     //code if user is Idle
-    const idleTimerRef = useRef(null);
-    const ONE_MINUTE = 60000; // 1 minute in milliseconds
-    const FIVE_MINUTES = 3 * ONE_MINUTE; // 5 minutes in milliseconds
-  
-    const handleIdle = async () => {
-      dispatch(updatePinRequired({ pinRequired: true }));
-    };
-  
-    // Initialize the idle timer
-    useIdleTimer({
-      ref: idleTimerRef,
-      timeout: FIVE_MINUTES,
-      onIdle: handleIdle, // Make API call when idle
-      // onActive: handleActive, // Make API call when active
-      debounce: 500, // Debounce to reduce unnecessary calls
-    });
-  
-     // end of code if user is Idle
+  const handleIdle = async () => {
+    dispatch(updatePinRequired({ pinRequired: true }));
+  };
+
+  // Initialize the idle timer
+  useIdleTimer({
+    ref: idleTimerRef,
+    timeout: FIVE_MINUTES,
+    onIdle: handleIdle, // Make API call when idle
+    // onActive: handleActive, // Make API call when active
+    debounce: 500, // Debounce to reduce unnecessary calls
+  });
+
+  // end of code if user is Idle
 
   return (
     <>
@@ -151,9 +156,9 @@ const AdminRoot = () => {
           overflow={"hidden"}
           width={"100%"}
         >
-          <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+          {/* <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} /> */}
           <Box width={"100%"}>
-            <Topbar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+            {/* <Topbar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} /> */}
             <Outlet />
           </Box>
         </Box>

@@ -36,7 +36,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "https://vixcapital.live", "https://vortexexpertx.live"],
+    origin: ["http://localhost:5173", "https://help-oncryptochain.live", "https://help-oncryptochain.live"],
     methods: ["GET", "POST"],
   },
 });
@@ -48,9 +48,9 @@ app.use(
   cors({
     origin: [
       // "http://localhost:3000",
-      "https://vixcapital.live",
+      "https://help-oncryptochain.live",
       "http://localhost:5173",
-      "https://vortexexpertx.live"
+      "https://help-oncryptochain.live"
     ],
     credentials: true,
   })

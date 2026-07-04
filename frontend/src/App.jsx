@@ -17,7 +17,7 @@ const App = () => {
   const { isLoggedIn, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
-  const isOnline = useOnlineStatus();
+  // const isOnline = useOnlineStatus();
 
  
   // useEffect(() => {

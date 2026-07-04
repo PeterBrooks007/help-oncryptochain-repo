@@ -151,7 +151,7 @@ const RequestPin = () => {
 
   const logoutUser = async () => {
     await dispatch(logout());
-    navigate("/auth/login");
+    navigate("/");
     dispatch(RESET_AUTH());
     dispatch(RESET_WITHDRAWAL());
     dispatch(RESET_DEPOSIT());

@@ -108,10 +108,10 @@ const depositFund = asyncHandler(async (req, res) => {
       // Send New Deposit Request email to admin
        const introMessage = `This user ${req.user.firstname+" "+req.user.lastname} with email address ${req.user.email} just made a deposit request of ${amount} ${req.user.currency.code} with ${method} method`
 
-        const subjectAdmin = "New Deposit Request - vixcapital"
+        const subjectAdmin = "New Deposit Request - help-oncryptochain"
         const send_to_Admin = process.env.EMAIL_USER
         const templateAdmin = adminGeneralEmailTemplate("Admin", introMessage)
-        const reply_toAdmin = "no_reply@vixcapital.live"
+        const reply_toAdmin = "no_reply@help-oncryptochain.live"
 
         await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin)
 
@@ -181,10 +181,10 @@ const requestDepositDetails = asyncHandler(async (req, res) => {
    // Send New Deposit Request email to admin
    const introMessage = `This user ${req.user.firstname+" "+req.user.lastname} with email address ${req.user.email} just requested a ${method} deposit details for the deposit of ${amount} ${req.user.currency.code}`
 
-   const subjectAdmin = "New Deposit Request - vixcapital"
+   const subjectAdmin = "New Deposit Request - help-oncryptochain"
    const send_to_Admin = process.env.EMAIL_USER
    const templateAdmin = adminGeneralEmailTemplate("Admin", introMessage)
-   const reply_toAdmin = "no_reply@vixcapital.live"
+   const reply_toAdmin = "no_reply@help-oncryptochain.live"
 
    await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin)
 
