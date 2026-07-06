@@ -35,7 +35,7 @@ export const useSSEConnection = (user, pathnameRef) => {
 
       eventSource.addEventListener("open", () => {
         retryCount.current = 0;
-        console.log("✅ SSE connection established", user._id);
+        // console.log("✅ SSE connection established", user._id);
       });
 
       eventSource.addEventListener("message", (event) => {

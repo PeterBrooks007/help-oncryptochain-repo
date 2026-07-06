@@ -221,7 +221,7 @@ function PrivacyAndPolicy() {
           <Typography variant="body1" paragraph>
             help-oncryptochain Investment
             <br />
-            Email: support@help-oncryptochain.live
+            Email: support@help-help-oncryptochain.live
             <br />
             {/* Phone: [Your Contact Phone] */}
           </Typography>

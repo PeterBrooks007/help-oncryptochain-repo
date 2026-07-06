@@ -213,6 +213,7 @@ const Chat = () => {
             </Typography>
             <IOSSwitch
               checked={checked}
+              disabled
 
               // onChange={changeManualAssetMode}
               // name="switch1"

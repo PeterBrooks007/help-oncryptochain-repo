@@ -241,7 +241,11 @@ const ChatLoginFormComponent = () => {
           {isLoading ? <CircularProgress size={28} /> : "Start Conversation"}
         </Button>
 
-        {/* <Typography textAlign={"center"} color={"#3b82f6"}>Connecting to secure support...</Typography> */}
+        {isLoading && (
+          <Typography variant="subtitle2" textAlign={"center"} color={"#3b82f6"}>
+            Connecting to a secure support...
+          </Typography>
+        )}
       </Stack>
     </form>
   );

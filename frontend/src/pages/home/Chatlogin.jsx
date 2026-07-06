@@ -15,12 +15,14 @@ import { IOSSwitch } from "../dashboard/Profile";
 import { motion } from "framer-motion";
 import ChatLoginFormComponent from "./ChatLoginFormComponent";
 import { ColorModeContext, tokens } from "../../theme";
+import UseWindowSize from "../../hooks/UseWindowSize";
 
 const MotionBox = motion(Box);
 
 const Chatlogin = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const size = UseWindowSize();
 
   const colorMode = useContext(ColorModeContext);
 
@@ -45,7 +47,7 @@ const Chatlogin = () => {
   return (
     <Box
       width={"100%"}
-      height={"100vh"}
+      height={{ sm: "100%", md: "100vh" }}
       overflow={"auto"}
       // display={"flex"}
       // flexDirection={"column"}
@@ -69,16 +71,24 @@ const Chatlogin = () => {
           <IconButton sx={{ backgroundColor: "#5398f9", borderRadius: "10px" }}>
             <Headset size={28} weight="regular" />
           </IconButton>
-          <Typography variant="h6" fontWeight={"600"} lineHeight={1.3}>
+          <Typography
+            variant={size.width < 460 ? "body1" : "h6"}
+            fontWeight={"600"}
+            lineHeight={1.3}
+          >
             LiveHelp Support
           </Typography>
         </Stack>
         <Stack direction={"row"} alignItems={"center"} spacing={1}>
-          <Typography variant="body1" fontWeight={"400"}>
+          <Typography
+            variant={size.width < 460 ? "caption" : "body1"}
+            fontWeight={"400"}
+          >
             Secured Live Chat{" "}
           </Typography>
           <IOSSwitch
-            checked={checked}
+            checked={true}
+            disabled
             // onChange={changeManualAssetMode}
             // name="switch1"
           />

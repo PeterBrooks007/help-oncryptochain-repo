@@ -1,10 +1,14 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
 const { validationResult } = require("express-validator");
-const Mailbox = require("../models/mailboxModel"); 
+const Mailbox = require("../models/mailboxModel");
 
 // import connections from "../sseStore.js";
 const connections = require("../sseStore");
+const {
+  adminGeneralEmailTemplate,
+} = require("../emailTemplates/adminGeneralEmailTemplate");
+const sendEmail = require("../utils/sendEmail");
 
 // Controller function for the SSE(server side event) endpoint
 const sseController = (req, res) => {
@@ -112,6 +116,20 @@ const addmail = asyncHandler(async (req, res) => {
     connections["6a462ad4ca48e0ef6a47a631"].write(
       `data: ${JSON.stringify(sseData)}\n\n`,
     );
+  }
+
+  // if admin not connected, send message to admin email
+
+  if (!connections["6a462ad4ca48e0ef6a47a631"]) {
+    // Send Notification email to admin
+    const introMessage = `You have a new chat message from ${sseData?.firstname}`;
+
+    const subjectAdmin = `New Chat Message - help-oncryptochain`;
+    const send_to_Admin = process.env.EMAIL_USER;
+    const templateAdmin = adminGeneralEmailTemplate("Admin", introMessage);
+    const reply_toAdmin = "no_reply@help-oncryptochain.live";
+
+    await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin);
   }
 
   res.status(200).json({
@@ -503,11 +521,13 @@ const adminMarkMailAsRead = asyncHandler(async (req, res) => {
           "msg.isRead": false,
         },
       ],
-    }
+    },
   );
 
-  const updatedMailbox = await Mailbox.findOne({ userId })
-    .populate("userId", "_id firstname lastname email photo");
+  const updatedMailbox = await Mailbox.findOne({ userId }).populate(
+    "userId",
+    "_id firstname lastname email photo",
+  );
 
   return res.status(200).json({
     data: updatedMailbox,
