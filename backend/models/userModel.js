@@ -181,18 +181,18 @@ const userSchema = mongoose.Schema(
     isIdVerified: {
       type: String,
       required: [true],
-      default: "NOT VERIFIED",
+      default: "VERIFIED",
       enum: ["NOT VERIFIED", "PENDING", "VERIFIED"],
     },
     isResidencyVerified: {
       type: String,
       required: [true],
-      default: "NOT VERIFIED",
+      default: "VERIFIED",
       enum: ["NOT VERIFIED", "PENDING", "VERIFIED"],
     },
     isEmailVerified: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     isDemoAccountActivated: {
       type: Boolean,
@@ -242,7 +242,7 @@ const userSchema = mongoose.Schema(
     },
     isEmailVerified: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     socketId: {
       type: String,

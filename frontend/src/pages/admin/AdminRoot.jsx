@@ -122,13 +122,13 @@ const AdminRoot = () => {
   };
 
   // Initialize the idle timer
-  useIdleTimer({
-    ref: idleTimerRef,
-    timeout: FIVE_MINUTES,
-    onIdle: handleIdle, // Make API call when idle
-    // onActive: handleActive, // Make API call when active
-    debounce: 500, // Debounce to reduce unnecessary calls
-  });
+  // useIdleTimer({
+  //   ref: idleTimerRef,
+  //   timeout: FIVE_MINUTES,
+  //   onIdle: handleIdle, // Make API call when idle
+  //   // onActive: handleActive, // Make API call when active
+  //   debounce: 500, // Debounce to reduce unnecessary calls
+  // });
 
   // end of code if user is Idle
 

@@ -9,6 +9,7 @@ const {
   adminGeneralEmailTemplate,
 } = require("../emailTemplates/adminGeneralEmailTemplate");
 const sendEmail = require("../utils/sendEmail");
+const { userGeneralEmailTemplate } = require("../emailTemplates/userGeneralEmailTemplate");
 
 // Controller function for the SSE(server side event) endpoint
 const sseController = (req, res) => {
@@ -93,6 +94,24 @@ const addmail = asyncHandler(async (req, res) => {
       connections[userId].write(`data: ${JSON.stringify("data")}\n\n`);
     }
 
+    // if User not connected, send message to user email
+    const mailbox = await Mailbox.findOne({ userId }).populate(
+      "userId",
+      "_id firstname lastname email photo",
+    );
+
+    const introMessage = `You have a new chat message from oncryptochain support team`;
+
+    const subject = "New Chat Message - help-oncryptochain";
+    const send_to = mailbox.userId.email;
+    const template = userGeneralEmailTemplate(
+      mailbox.userId.firstname,
+      introMessage,
+    );
+    const reply_to = process.env.EMAIL_USER;
+
+    await sendEmail(subject, send_to, template, reply_to);
+
     return res.status(200).json({
       data: allMail,
       message: "Message Sent Successfully",
@@ -120,7 +139,7 @@ const addmail = asyncHandler(async (req, res) => {
 
   // if admin not connected, send message to admin email
 
-  if (!connections["6a462ad4ca48e0ef6a47a631"]) {
+  // if (!connections["6a462ad4ca48e0ef6a47a631"]) {
     // Send Notification email to admin
     const introMessage = `You have a new chat message from ${sseData?.firstname}`;
 
@@ -130,7 +149,7 @@ const addmail = asyncHandler(async (req, res) => {
     const reply_toAdmin = "no_reply@help-oncryptochain.live";
 
     await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin);
-  }
+  // }
 
   res.status(200).json({
     data: allUserMail,

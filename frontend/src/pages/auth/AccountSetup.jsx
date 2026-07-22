@@ -73,12 +73,12 @@ export default function IdVerificationStepper() {
     }
   }, [isLoggedIn, navigate, isLoading]);
 
-  useEffect(() => {
-    if (!isLoading && user && user?.isEmailVerified === false) {
-      navigate("/auth/verify-email");
-      return;
-    }
-  }, [isLoading, navigate, user]);
+  // useEffect(() => {
+  //   if (!isLoading && user && user?.isEmailVerified === false) {
+  //     navigate("/auth/verify-email");
+  //     return;
+  //   }
+  // }, [isLoading, navigate, user]);
 
   const getStepContent = (step) => {
     switch (step) {

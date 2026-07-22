@@ -21,7 +21,7 @@ const sendEmail = async (subject, send_to, template, reply_to, cc) => {
       name: "help-oncryptochain Platform",
       link: "https://help-oncryptochain.live/",
       // Optional product logo
-      logo: 'https://res.cloudinary.com/dmgo9qi2y/image/upload/v1781226875/logo_wmqd2k.png',
+      logo: 'https://res.cloudinary.com/nlkqiqge/image/upload/v1784684673/logo_e6u0kh.png',
        // Custom logo height
       logoHeight: '70px'
     },

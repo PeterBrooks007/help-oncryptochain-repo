@@ -2,7 +2,7 @@ const userGeneralEmailTemplate = (name, introMessage) => {
     const email = {
         body: {
             name,
-            intro: introMessage,
+            intro:  "Hello there",
             // action: {
             //     instructions: 'Go to admin dashboard',
             //     button: {
