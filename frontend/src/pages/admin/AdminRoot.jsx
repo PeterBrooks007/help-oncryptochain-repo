@@ -63,27 +63,27 @@ const AdminRoot = () => {
   //   }
   // }, [isLoggedIn, user?._id, dispatch]);
 
-  useEffect(() => {
-    if (isLoggedIn && user === null) {
-      dispatch(getUser());
-    }
-  }, [dispatch, isLoggedIn, user]);
+  // useEffect(() => {
+  //   if (isLoggedIn && user === null) {
+  //     dispatch(getUser());
+  //   }
+  // }, [dispatch, isLoggedIn, user]);
 
-  useEffect(() => {
-    dispatch(getLoginStatus());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(getLoginStatus());
+  // }, [dispatch]);
 
   if (!isLoading && isLoggedIn === false) {
     navigate("/");
   }
 
-  if (!isLoading && user?.pinRequired === true) {
-    navigate("/auth/request-pin");
-  }
+  // if (!isLoading && user?.pinRequired === true) {
+  //   navigate("/auth/request-pin");
+  // }
 
-  useEffect(() => {
-    setIsCollapsed(isSmallScreen);
-  }, [isSmallScreen]);
+  // useEffect(() => {
+  //   setIsCollapsed(isSmallScreen);
+  // }, [isSmallScreen]);
 
   // useEffect(() => {
   //   const allCoinsData = localStorage.getItem("allCoins");
