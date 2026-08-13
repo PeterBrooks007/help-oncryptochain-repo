@@ -85,41 +85,41 @@ const AdminRoot = () => {
     setIsCollapsed(isSmallScreen);
   }, [isSmallScreen]);
 
-  useEffect(() => {
-    const allCoinsData = localStorage.getItem("allCoins");
+  // useEffect(() => {
+  //   const allCoinsData = localStorage.getItem("allCoins");
 
-    if (allCoinsData) {
-      const { savedAt } = JSON.parse(allCoinsData);
+  //   if (allCoinsData) {
+  //     const { savedAt } = JSON.parse(allCoinsData);
 
-      // Convert `savedAt` to Date object and compare time difference
-      const savedAtTime = new Date(savedAt).getTime();
-      const currentTime = new Date().getTime();
-      const sixHoursInMillis = 24 * 60 * 60 * 1000;
+  //     // Convert `savedAt` to Date object and compare time difference
+  //     const savedAtTime = new Date(savedAt).getTime();
+  //     const currentTime = new Date().getTime();
+  //     const sixHoursInMillis = 24 * 60 * 60 * 1000;
 
-      const timestampPlusSixHours = savedAtTime + sixHoursInMillis;
+  //     const timestampPlusSixHours = savedAtTime + sixHoursInMillis;
 
-      const hasTimePassedSixHours = currentTime > timestampPlusSixHours;
+  //     const hasTimePassedSixHours = currentTime > timestampPlusSixHours;
 
-      // console.log("hasTimePassed24Hours", hasTimePassedSixHours);
+  //     // console.log("hasTimePassed24Hours", hasTimePassedSixHours);
 
-      // If more than 6 hours have passed, dispatch the action
-      if (hasTimePassedSixHours) {
-        dispatch(getAllCoins());
-      }
-    } else {
-      // If no data exists in localStorage, dispatch the action immediately
-      dispatch(getAllCoins());
-    }
-  }, [dispatch]);
+  //     // If more than 6 hours have passed, dispatch the action
+  //     if (hasTimePassedSixHours) {
+  //       dispatch(getAllCoins());
+  //     }
+  //   } else {
+  //     // If no data exists in localStorage, dispatch the action immediately
+  //     dispatch(getAllCoins());
+  //   }
+  // }, [dispatch]);
 
   //code if user is Idle
-  const idleTimerRef = useRef(null);
-  const ONE_MINUTE = 60000; // 1 minute in milliseconds
-  const FIVE_MINUTES = 3 * ONE_MINUTE; // 5 minutes in milliseconds
+  // const idleTimerRef = useRef(null);
+  // const ONE_MINUTE = 60000; // 1 minute in milliseconds
+  // const FIVE_MINUTES = 3 * ONE_MINUTE; // 5 minutes in milliseconds
 
-  const handleIdle = async () => {
-    dispatch(updatePinRequired({ pinRequired: true }));
-  };
+  // const handleIdle = async () => {
+  //   dispatch(updatePinRequired({ pinRequired: true }));
+  // };
 
   // Initialize the idle timer
   // useIdleTimer({

@@ -12,6 +12,8 @@ export const useSSEConnection = (user, pathnameRef) => {
 
   const dispatch = useDispatch();
 
+  const userId = user?._id;
+
   const getUserMessage = async (data) => {
     if (user.role == "admin") {
       await dispatch(getAllMailWithoutLoader());
@@ -23,7 +25,9 @@ export const useSSEConnection = (user, pathnameRef) => {
   };
 
   useEffect(() => {
-    if (user) {
+    if (!userId) return;
+
+    if (userId) {
       const eventSource = new EventSource(
         import.meta.env.VITE_APP_BACKEND_URL +
           "/api/mailbox/sseConnection/" +
@@ -31,7 +35,6 @@ export const useSSEConnection = (user, pathnameRef) => {
       );
 
       //  console.log("✅ trying to SSE connection established now", user._id);
-
 
       eventSource.addEventListener("open", () => {
         retryCount.current = 0;
@@ -68,7 +71,7 @@ export const useSSEConnection = (user, pathnameRef) => {
         eventSource.close();
       };
     }
-  }, [user, dispatch, pathnameRef]);
+  }, [userId, dispatch, pathnameRef]);
 
   // useEffect(() => {
   //   if (!currentUser) return;
