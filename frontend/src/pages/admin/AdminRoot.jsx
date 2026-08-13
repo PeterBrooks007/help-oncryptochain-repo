@@ -63,11 +63,11 @@ const AdminRoot = () => {
   //   }
   // }, [isLoggedIn, user?._id, dispatch]);
 
-  // useEffect(() => {
-  //   if (isLoggedIn && user === null) {
-  //     dispatch(getUser());
-  //   }
-  // }, [dispatch, isLoggedIn, user]);
+  useEffect(() => {
+    if (isLoggedIn && user === null) {
+      dispatch(getUser());
+    }
+  }, [dispatch, isLoggedIn, user]);
 
   // useEffect(() => {
   //   dispatch(getLoginStatus());
