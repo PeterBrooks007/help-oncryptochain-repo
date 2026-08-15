@@ -34,10 +34,18 @@ const messageSchema = new Schema(
       type: String,
       default: "Inbox",
     },
+    messageType: {
+      type: String,
+      default: "Text",
+    },
+    imageUrl: {
+      type: String,
+      default: "",
+    },
     createdAt: {
       type: Date,
       default: Date.now,
-    }, 
+    },
   },
   // { _id: false } // Prevents each message from having its own unique _id
 );
@@ -46,7 +54,7 @@ const mailboxSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     messages: {
@@ -54,7 +62,7 @@ const mailboxSchema = new Schema(
       default: [],
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Mailbox = mongoose.model("Mailbox", mailboxSchema);

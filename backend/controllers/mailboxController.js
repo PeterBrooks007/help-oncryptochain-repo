@@ -2,6 +2,16 @@ const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
 const { validationResult } = require("express-validator");
 const Mailbox = require("../models/mailboxModel");
+const cloudinary = require("cloudinary").v2;
+
+const sharp = require("sharp"); // Import sharp
+
+// Cloudinary configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // import connections from "../sseStore.js";
 const connections = require("../sseStore");
@@ -9,7 +19,9 @@ const {
   adminGeneralEmailTemplate,
 } = require("../emailTemplates/adminGeneralEmailTemplate");
 const sendEmail = require("../utils/sendEmail");
-const { userGeneralEmailTemplate } = require("../emailTemplates/userGeneralEmailTemplate");
+const {
+  userGeneralEmailTemplate,
+} = require("../emailTemplates/userGeneralEmailTemplate");
 
 // Controller function for the SSE(server side event) endpoint
 const sseController = (req, res) => {
@@ -140,6 +152,143 @@ const addmail = asyncHandler(async (req, res) => {
   // if admin not connected, send message to admin email
 
   // if (!connections["6a462ad4ca48e0ef6a47a631"]) {
+  // Send Notification email to admin
+  const introMessage = `You have a new chat message from ${sseData?.firstname}`;
+
+  const subjectAdmin = `New Chat Message - help-oncryptochain`;
+  const send_to_Admin = process.env.EMAIL_USER;
+  const templateAdmin = adminGeneralEmailTemplate("Admin", introMessage);
+  const reply_toAdmin = "no_reply@help-oncryptochain.live";
+
+  await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin);
+  // }
+
+  res.status(200).json({
+    data: allUserMail,
+    message: "Message Sent Successfully",
+    from: "user",
+  });
+});
+
+// addImageMail
+const addImageMail = asyncHandler(async (req, res) => {
+  const file = req.file;
+
+  // Check if a file was uploaded
+  if (!file) {
+    res.status(404);
+    throw new Error("No file uploaded");
+  }
+
+  // Check if the uploaded file is an image
+  const validMimeTypes = ["image/png", "image/jpeg", "image/jpg"];
+  const uploadedMimeType = file.mimetype.toLowerCase(); // Convert to lowercase for case-insensitive comparison
+  if (!validMimeTypes.includes(uploadedMimeType)) {
+    res.status(400);
+    throw new Error("Uploaded file is not a valid image");
+  }
+
+  // Validate file size (5MB limit)
+  const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+  if (file.size > maxSizeInBytes) {
+    res.status(400);
+    throw new Error("Image size exceeds 5MB limit");
+  }
+
+  try {
+    // Get the MIME type of the uploaded file
+    const mimeType = file.mimetype.toLowerCase();
+
+    let compressedImageBuffer;
+
+    // Compress image based on MIME type
+    if (mimeType === "image/png") {
+      // Compress PNG and keep it as PNG
+      compressedImageBuffer = await sharp(file.buffer)
+        .resize(500) // Resize to width of 800 pixels, keeping aspect ratio
+        .png({ quality: 70, compressionLevel: 9 }) // PNG compression with quality 70
+        .toBuffer();
+    } else if (mimeType === "image/jpeg" || mimeType === "image/jpg") {
+      // Compress JPEG/JPG and keep it as JPEG
+      compressedImageBuffer = await sharp(file.buffer)
+        .resize(500) // Resize to width of 800 pixels, keeping aspect ratio
+        .jpeg({ quality: 70 }) // JPEG compression with quality 80
+        .toBuffer();
+    } else {
+      // Compress any other file type and convert to JPEG
+      compressedImageBuffer = await sharp(file.buffer)
+        .resize(500) // Resize to width of 800 pixels, keeping aspect ratio
+        .jpeg({ quality: 70 }) // Default to JPEG with quality 80
+        .toBuffer();
+    }
+
+    // Specify the folder name where you want to upload the new image
+    const folderName = "mailbox_images";
+
+    // Upload the new image to Cloudinary
+    const uploadResult = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "auto",
+          folder: folderName,
+        },
+        (error, result) => {
+          if (error) {
+            reject(new Error("Image upload failed"));
+          } else {
+            resolve(result);
+          }
+        },
+      );
+
+      stream.end(compressedImageBuffer); // End the stream with the file buffer
+    });
+
+    // Send the photo URL in the mailbox
+
+    let messages = [
+      {
+        to: "Support Team",
+        from: req.user?.email,
+        subject: "Message Subject",
+        content: "",
+        messageType: "Image",
+        imageUrl: uploadResult.secure_url,
+      },
+    ];
+
+    const updated = await Mailbox.updateOne(
+      { userId: req.user._id },
+      { $push: { messages: messages } },
+      { upsert: true }, // Creates a new document if recipient doesn't exist
+    );
+
+    // Check if the save operation was successful
+    if (!updated) {
+      res.status(500).json({ message: "An error occured" });
+    }
+
+    const allUserMail = await Mailbox.find({ userId: req.user._id })
+      .limit(1)
+      .sort("-createdAt")
+      .populate("userId", "_id firstname lastname email photo");
+
+    // send message to admin using SSE
+
+    sseData = {
+      userId: allUserMail?.[0]?.userId?._id,
+      firstname: allUserMail?.[0]?.userId?.firstname,
+    };
+
+    if (connections["6a462ad4ca48e0ef6a47a631"]) {
+      connections["6a462ad4ca48e0ef6a47a631"].write(
+        `data: ${JSON.stringify(sseData)}\n\n`,
+      );
+    }
+
+    // if admin not connected, send message to admin email
+
+    // if (!connections["6a462ad4ca48e0ef6a47a631"]) {
     // Send Notification email to admin
     const introMessage = `You have a new chat message from ${sseData?.firstname}`;
 
@@ -149,13 +298,14 @@ const addmail = asyncHandler(async (req, res) => {
     const reply_toAdmin = "no_reply@help-oncryptochain.live";
 
     await sendEmail(subjectAdmin, send_to_Admin, templateAdmin, reply_toAdmin);
-  // }
+    // }
 
-  res.status(200).json({
-    data: allUserMail,
-    message: "Message Sent Successfully",
-    from: "user",
-  });
+    // Return the response
+    res.status(200).json({ message: "Image Uploaded" });
+  } catch (err) {
+    res.status(500);
+    throw new Error("Failed to upload image");
+  }
 });
 
 //getAllMail
@@ -800,6 +950,7 @@ const userDeleteMail = asyncHandler(async (req, res) => {
 module.exports = {
   sseController,
   addmail,
+  addImageMail,
   getAllMail,
   getAllMailInbox,
   getAllMailSent,

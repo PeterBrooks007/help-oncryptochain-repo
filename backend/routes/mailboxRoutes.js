@@ -1,13 +1,18 @@
 const express = require("express");
+const multer = require('multer');
 const { protect, adminOnly } = require("../middleware/authMiddleware");
-const { addmail, getAllMail, getAllMailInbox, getAllMailSent, getUserMail, getAllUsers, userDeleteMail, adminDeleteMail, adminMarkMailAsRead, adminStarredMail, getAllMailIsStarred, sseController } = require("../controllers/mailboxController");
+const { addmail, getAllMail, getAllMailInbox, getAllMailSent, getUserMail, getAllUsers, userDeleteMail, adminDeleteMail, adminMarkMailAsRead, adminStarredMail, getAllMailIsStarred, sseController, addImageMail } = require("../controllers/mailboxController");
 const { addmailValidator, adminStarredMailValidator } = require("../validators/mailboxValidator");
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 const router = express.Router(); 
 
 router.get("/sseConnection/:userId", sseController);
 
 router.post("/addmail", protect, addmailValidator, addmail);
+
+router.post("/addImageMail", protect, upload.single('image'), addImageMail);
 
 router.get("/getAllMail", protect, adminOnly, getAllMail);
 

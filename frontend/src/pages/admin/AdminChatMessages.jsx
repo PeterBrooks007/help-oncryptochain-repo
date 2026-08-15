@@ -13,7 +13,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { Gear, Headset, Lock } from "@phosphor-icons/react";
+import { ArrowsClockwise, Gear, Headset, Lock } from "@phosphor-icons/react";
 import React, { useContext, useEffect, useState } from "react";
 import { IOSSwitch } from "../dashboard/Profile";
 import image from "../../assets/admin_IMG_1550.jpeg";
@@ -359,6 +359,13 @@ const AdminChatMessages = () => {
                     >
                       {unreadCount}
                     </Typography>
+                    <IconButton
+                      onClick={() => {
+                        dispatch(getAllMail());
+                      }}
+                    >
+                      <ArrowsClockwise />
+                    </IconButton>
                   </Stack>
 
                   <Stack
@@ -443,20 +450,21 @@ const AdminChatMessages = () => {
                                       mail?.messages?.at(-1)?.content || "",
                                       100,
                                     )}{" "}
-                                    {mail?.messages?.at(-1)?.isRead ===
-                                      false && mail?.messages?.at(-1)?.from !== "Support Team" && (
-                                      <Typography
-                                        variant="caption"
-                                        color={"springgreen"}
-                                        sx={{
-                                          bgcolor: "darkgreen",
-                                          p: "0px 4px",
-                                          borderRadius: "20%",
-                                        }}
-                                      >
-                                        New
-                                      </Typography>
-                                    )}
+                                    {mail?.messages?.at(-1)?.isRead === false &&
+                                      mail?.messages?.at(-1)?.from !==
+                                        "Support Team" && (
+                                        <Typography
+                                          variant="caption"
+                                          color={"springgreen"}
+                                          sx={{
+                                            bgcolor: "darkgreen",
+                                            p: "0px 4px",
+                                            borderRadius: "20%",
+                                          }}
+                                        >
+                                          New
+                                        </Typography>
+                                      )}
                                   </Typography>
                                 </Stack>
                               </Stack>

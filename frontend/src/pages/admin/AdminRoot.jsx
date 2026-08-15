@@ -69,9 +69,9 @@ const AdminRoot = () => {
     }
   }, [dispatch, isLoggedIn, user]);
 
-  // useEffect(() => {
-  //   dispatch(getLoginStatus());
-  // }, [dispatch]);
+  useEffect(() => {
+    dispatch(getLoginStatus());
+  }, [dispatch]);
 
   if (!isLoading && isLoggedIn === false) {
     navigate("/");

@@ -8,13 +8,22 @@ import {
   useTheme,
   Skeleton,
   CircularProgress,
+  Button,
 } from "@mui/material";
-import { Link, Lock, PaperPlaneTilt, Spinner, X } from "@phosphor-icons/react";
+import {
+  Image as ImageIcon,
+  Link,
+  Lock,
+  PaperPlaneTilt,
+  Spinner,
+  X,
+} from "@phosphor-icons/react";
 import image from "../../assets/icon.svg";
 import { IOSSwitch } from "../dashboard/Profile";
 import {
   addmail,
   getUserMail,
+  getUserMailWithoutLoader,
 } from "../../redux/features/mailbox/mailboxSlice";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,6 +35,11 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import { ColorModeContext, tokens } from "../../theme";
 import { useSSEConnection } from "../../hooks/useSSEConnection";
+import { toast } from "react-toastify";
+import axios from "axios";
+
+const BACKEND_URL = import.meta.env.VITE_APP_BACKEND_URL;
+export const API_URL = `${BACKEND_URL}/api/mailbox/`;
 
 const Chat = () => {
   const theme = useTheme();
@@ -129,6 +143,95 @@ const Chat = () => {
     await dispatch(addmail(formData));
     setMessage("");
     setUploadLoading(false);
+  };
+
+  // /Upload image message
+
+  const [profileImage, setProfileImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+  const handleButtonClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileImage(file);
+      setImagePreview(URL.createObjectURL(e.target.files[0]));
+    }
+  };
+
+  const savePhoto = async (e) => {
+    e.preventDefault();
+    setUploadLoading(true);
+
+    try {
+      if (profileImage !== null) {
+        // Check if the file is an allowed image type
+        const validImageTypes = ["image/jpeg", "image/jpg", "image/png"];
+        if (!validImageTypes.includes(profileImage.type)) {
+          toast.error("Invalid file type. Only JPEG and PNG are allowed.");
+          setUploadLoading(false);
+          return;
+        }
+
+        // Check if the file size exceeds the limit
+        if (profileImage.size > MAX_FILE_SIZE) {
+          toast.error("File size exceeds the 5MB limit.");
+          setUploadLoading(false);
+          return;
+        }
+
+        // Check if the compressed file is a valid image by loading it
+        const imageLoadCheck = new Promise((resolve, reject) => {
+          const img = new Image();
+          img.src = URL.createObjectURL(profileImage);
+          img.onload = () => resolve(true);
+          img.onerror = () => reject(false);
+        });
+
+        const isValidImage = await imageLoadCheck;
+        if (!isValidImage) {
+          toast.error("The file is not a valid image.");
+          setUploadLoading(false);
+          return;
+        }
+
+        // If all checks pass, proceed with the upload
+        const formData = new FormData();
+        formData.append("image", profileImage);
+
+        const response = await axios.post(API_URL + "addImageMail", formData, {
+          withCredentials: true,
+        });
+
+        // console.log(response?.message);
+
+        if (response?.data?.message === "Image Uploaded") {
+          // get all user chats
+          dispatch(getUserMailWithoutLoader());
+        }
+
+        // Reset the image preview and loading state
+        setImagePreview(null);
+        setUploadLoading(false);
+      } else {
+        toast.error("No image selected.");
+        setUploadLoading(false);
+      }
+    } catch (error) {
+      setUploadLoading(false);
+      toast.error(error.message);
+    }
   };
 
   return (
@@ -344,22 +447,100 @@ const Chat = () => {
               {/* End of welcome auto Message */}
 
               {/* Start of messages array */}
-              {allMails &&
-                allMails?.[0]?.messages.length > 0 &&
-                allMails?.[0]?.messages?.map((mail) => {
-                  // console.log(user?.email);
-                  return (
-                    <ChatMessage
-                      key={mail._id}
-                      message={mail.content}
-                      time={new Date(mail.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                      isMine={mail.from === user?.email}
-                    />
-                  );
-                })}
+              {allMails?.[0]?.messages?.length > 0 &&
+                allMails[0].messages.map((mail) => (
+                  <ChatMessage
+                    key={mail._id}
+                    message={
+                      mail.messageType === "Image" ? (
+                        <img
+                          src={mail.imageUrl}
+                          alt="Sent image"
+                          style={{
+                            maxWidth: "150px",
+                            maxHeight: "200px",
+                            width: "auto",
+                            height: "auto",
+                            objectFit: "cover",
+                            borderRadius: "12px",
+                            display: "block",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => {
+                            setSelectedImage(mail.imageUrl);
+                            setImageModalOpen(true);
+                          }}
+                        />
+                      ) : (
+                        mail.content
+                      )
+                    }
+                    time={new Date(mail.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                    isMine={mail.from === user?.email}
+                  />
+                ))}
+
+              {imageModalOpen && selectedImage && (
+                <Box
+                  onClick={() => setImageModalOpen(false)}
+                  sx={{
+                    position: "fixed",
+                    inset: 0,
+                    zIndex: 9999,
+                    backgroundColor: "rgba(0, 0, 0, 0.9)",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    p: 2,
+                    cursor: "pointer",
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={selectedImage}
+                    alt="Full size"
+                    onClick={(e) => e.stopPropagation()}
+                    sx={{
+                      maxWidth: "95vw",
+                      maxHeight: "95vh",
+                      width: "auto",
+                      height: "auto",
+                      objectFit: "contain",
+                      borderRadius: 1,
+                      cursor: "default",
+                    }}
+                  />
+
+                  <IconButton
+                    onClick={() => setImageModalOpen(false)}
+                    sx={{
+                      position: "absolute",
+                      top: 20,
+                      right: 20,
+                      color: "white",
+                      backgroundColor: "rgba(0,0,0,0.5)",
+                      "&:hover": {
+                        backgroundColor: "rgba(0,0,0,0.8)",
+                      },
+                    }}
+                  >
+                    <X size={28} />
+                  </IconButton>
+                </Box>
+              )}
+
+              <Stack>
+                <Button
+                  onClick={() => {
+                    dispatch(getUserMail());
+                  }}
+                >
+                  Refresh Messages
+                </Button>
+              </Stack>
 
               <Box ref={messagesEndRef} />
             </Box>
@@ -378,6 +559,53 @@ const Chat = () => {
           px={2}
         >
           <Stack spacing={2} width={"100%"}>
+            <Stack direction={"row"} alignItems={"center"} spacing={1}>
+              <img
+                src={imagePreview === null ? "" : imagePreview}
+                alt="profileimage"
+                width={"50px"}
+                height={"50px"}
+                style={{
+                  border: "1px solid grey",
+                  borderRadius: "10%",
+                  objectFit: "contain",
+                  display: !imagePreview && "none",
+                }}
+              />
+
+              {imagePreview !== null && (
+                <Box spacing={0.5} mb={3}>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    onClick={savePhoto}
+                    disabled={uploadLoading && true}
+                    sx={{
+                      "&.Mui-disabled": {
+                        backgroundColor: "grey",
+                        color: "white",
+                      },
+                    }}
+                  >
+                    {uploadLoading ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      "UPLOAD IMAGE"
+                    )}
+                  </Button>
+
+                  <Button
+                    size="small"
+                    variant="contained"
+                    onClick={() => setImagePreview(null)}
+                    sx={{ ml: 1 }}
+                  >
+                    <X size={20} /> Cancel upload
+                  </Button>
+                </Box>
+              )}
+            </Stack>
+
             <TextField
               fullWidth
               size="medium"
@@ -391,7 +619,16 @@ const Chat = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Link weight="thin" size={26} />
+                    <IconButton onClick={handleButtonClick}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        style={{ display: "none" }} // Hide the file input
+                        onChange={handleImageChange}
+                      />
+                      <ImageIcon weight="thin" size={26} />
+                    </IconButton>
                   </InputAdornment>
                 ),
                 endAdornment: (

@@ -8,6 +8,7 @@ import {
   useTheme,
   Skeleton,
   CircularProgress,
+  Button,
 } from "@mui/material";
 import { Link, Lock, PaperPlaneTilt, Spinner, X } from "@phosphor-icons/react";
 import image from "../../assets/icon.svg";
@@ -92,6 +93,9 @@ const AdminChat = () => {
     setMessage("");
     setUploadLoading(false);
   };
+
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
 
   return (
     <Box
@@ -247,7 +251,30 @@ const AdminChat = () => {
                   return (
                     <ChatMessage
                       key={mail._id}
-                      message={mail.content}
+                      message={
+                        mail.messageType === "Image" ? (
+                          <img
+                            src={mail.imageUrl}
+                            alt="Sent image"
+                            style={{
+                              maxWidth: "150px",
+                              maxHeight: "200px",
+                              width: "auto",
+                              height: "auto",
+                              objectFit: "cover",
+                              borderRadius: "12px",
+                              display: "block",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => {
+                              setSelectedImage(mail.imageUrl);
+                              setImageModalOpen(true);
+                            }}
+                          />
+                        ) : (
+                          mail.content
+                        )
+                      }
                       time={new Date(mail.createdAt).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -256,6 +283,66 @@ const AdminChat = () => {
                     />
                   );
                 })}
+
+              {imageModalOpen && selectedImage && (
+                <Box
+                  onClick={() => setImageModalOpen(false)}
+                  sx={{
+                    position: "fixed",
+                    inset: 0,
+                    zIndex: 9999,
+                    backgroundColor: "rgba(0, 0, 0, 0.9)",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    p: 2,
+                    cursor: "pointer",
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={selectedImage}
+                    alt="Full size"
+                    onClick={(e) => e.stopPropagation()}
+                    sx={{
+                      maxWidth: "95vw",
+                      maxHeight: "95vh",
+                      width: "auto",
+                      height: "auto",
+                      objectFit: "contain",
+                      borderRadius: 1,
+                      cursor: "default",
+                    }}
+                  />
+
+                  <IconButton
+                    onClick={() => setImageModalOpen(false)}
+                    sx={{
+                      position: "absolute",
+                      top: 20,
+                      right: 20,
+                      color: "white",
+                      backgroundColor: "rgba(0,0,0,0.5)",
+                      "&:hover": {
+                        backgroundColor: "rgba(0,0,0,0.8)",
+                      },
+                    }}
+                  >
+                    <X size={28} />
+                  </IconButton>
+                </Box>
+              )}
+
+              <Stack>
+                <Button
+                  onClick={() => {
+                    dispatch(getSingleUser(id));
+                    dispatch(getAllMail());
+                  }}
+                >
+                  Refresh Messages
+                </Button>
+              </Stack>
 
               <Box ref={messagesEndRef} />
             </Box>
