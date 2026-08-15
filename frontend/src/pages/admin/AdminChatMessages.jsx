@@ -447,7 +447,7 @@ const AdminChatMessages = () => {
                                     color={"gray"}
                                   >
                                     {shortenText(
-                                      mail?.messages?.at(-1)?.content || "",
+                                      mail?.messages?.at(-1)?.content || "Image Message",
                                       100,
                                     )}{" "}
                                     {mail?.messages?.at(-1)?.isRead === false &&
