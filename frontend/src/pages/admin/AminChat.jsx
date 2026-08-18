@@ -11,12 +11,26 @@ import {
   Skeleton,
   CircularProgress,
   Button,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
-import { Link, Lock, PaperPlaneTilt, Spinner, X } from "@phosphor-icons/react";
+import {
+  DotsThreeOutlineVertical,
+  DotsThreeVertical,
+  Link,
+  Lock,
+  PaperPlaneTilt,
+  Spinner,
+  Trash,
+  X,
+} from "@phosphor-icons/react";
 import image from "../../assets/icon.svg";
 import { IOSSwitch } from "../dashboard/Profile";
 import {
   addmail,
+  adminDeleteMail,
   getAllMail,
   getUserMail,
 } from "../../redux/features/mailbox/mailboxSlice";
@@ -98,6 +112,44 @@ const AdminChat = () => {
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageModalOpen, setImageModalOpen] = useState(false);
+
+  // Admin Delete chat Dropdown
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedMessage, setSelectedMessage] = useState(null);
+
+  const handleMenuClick = (event, mail) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedMessage(mail);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedMessage(null);
+  };
+
+  const handleDeleteClick = async () => {
+    handleMenuClose();
+
+    const messageData = {
+      messageData: [
+        {
+          messageId: selectedMessage._id,
+          userId: id,
+        },
+      ],
+      from: "inboxComponent",
+    };
+
+    await dispatch(adminDeleteMail({ messageData }));
+    dispatch(getAllMail());
+    setSelectedMessage(null);
+
+    // console.log(selectedMessage);
+
+    // Your delete logic here
+    // handleDeleteMessage(selectedMessage._id);
+  };
 
   return (
     <Box
@@ -321,37 +373,65 @@ const AdminChat = () => {
                 selectedMail?.[0]?.messages?.map((mail, index) => {
                   return (
                     <React.Fragment key={mail._id}>
-                      <ChatMessage
-                        message={
-                          mail.messageType === "Image" ? (
-                            <img
-                              src={mail.imageUrl}
-                              alt="Sent image"
-                              style={{
-                                maxWidth: "150px",
-                                maxHeight: "200px",
-                                width: "auto",
-                                height: "auto",
-                                objectFit: "cover",
-                                borderRadius: "12px",
-                                display: "block",
-                                cursor: "pointer",
-                              }}
-                              onClick={() => {
-                                setSelectedImage(mail.imageUrl);
-                                setImageModalOpen(true);
-                              }}
-                            />
-                          ) : (
-                            mail.content
-                          )
-                        }
-                        time={new Date(mail.createdAt).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                        isMine={mail.from !== singleUser?.email}
-                      />
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: 0.5,
+                          width: "100%",
+                        }}
+                      >
+                        <ChatMessage
+                          message={
+                            mail.messageType === "Image" ? (
+                              <img
+                                src={mail.imageUrl}
+                                alt="Sent image"
+                                style={{
+                                  maxWidth: "150px",
+                                  maxHeight: "200px",
+                                  width: "auto",
+                                  height: "auto",
+                                  objectFit: "cover",
+                                  borderRadius: "12px",
+                                  display: "block",
+                                  cursor: "pointer",
+                                }}
+                                onClick={() => {
+                                  setSelectedImage(mail.imageUrl);
+                                  setImageModalOpen(true);
+                                }}
+                              />
+                            ) : (
+                              mail.content
+                            )
+                          }
+                          time={new Date(mail.createdAt).toLocaleTimeString(
+                            [],
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
+                          isMine={mail.from !== singleUser?.email}
+                        />
+
+                        {/* Three-dot menu */}
+                        {mail.from !== singleUser?.email && (
+                          <IconButton
+                            size="small"
+                            onClick={(event) => handleMenuClick(event, mail)}
+                            sx={{
+                              color: "grey",
+                              "&:hover": {
+                                color: "#5398f9",
+                              },
+                            }}
+                          >
+                            <DotsThreeOutlineVertical size={20} />
+                          </IconButton>
+                        )}
+                      </Box>
 
                       {/* Show this after the first message */}
                       {index === 0 && (
@@ -365,6 +445,28 @@ const AdminChat = () => {
                   );
                 })}
 
+              {/* ONE Menu for the entire message list */}
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+              >
+                <MenuItem onClick={handleDeleteClick}>
+                  <ListItemIcon>
+                    <Trash size={22} />
+                  </ListItemIcon>
+
+                  <ListItemText>Delete message</ListItemText>
+                </MenuItem>
+              </Menu>
               {imageModalOpen && selectedImage && (
                 <Box
                   onClick={() => setImageModalOpen(false)}

@@ -547,15 +547,15 @@ const mailboxSlice = createSlice({
         state.isSuccess = true;
         state.isLoggedIn = true;
 
-        if(action.payload.from === "sentComponent" ) {
-          state.allMailSent = action.payload.data;
-        }
-        if(action.payload.from === "inboxComponent" ) {
-          state.allMailInbox = action.payload.data;
-        }
-        if(action.payload.from === "userInboxComponent" ) {
-          state.allMails = action.payload.data;
-        }
+        // if(action.payload.from === "sentComponent" ) {
+        //   state.allMailSent = action.payload.data;
+        // }
+        // if(action.payload.from === "inboxComponent" ) {
+        //   state.allMailInbox = action.payload.data;
+        // }
+        // if(action.payload.from === "userInboxComponent" ) {
+        //   state.allMails = action.payload.data;
+        // }
 
         // console.log(action.payload);
         toast.success("Message Deleted Successfully", {
