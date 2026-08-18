@@ -488,7 +488,7 @@ const Chat = () => {
                     {/* Show only after the first message */}
                     {index === 0 && (
                       <ChatMessage
-                        message="Understood. I will route you to someone with the right expertise to help you. There should be with you any second now"
+                        message="Understood. I will route you to someone with the right expertise to help you. They should be with you any second now"
                         time=""
                         isMine={false}
                       />
