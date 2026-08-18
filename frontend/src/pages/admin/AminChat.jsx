@@ -1,3 +1,5 @@
+import React from "react";
+
 import {
   Box,
   Stack,
@@ -243,44 +245,123 @@ const AdminChat = () => {
                 {selectedMail?.[0]?.userId?.email}
               </Typography>
 
+              {/* Start of welcome auto Message */}
+              <Stack
+                direction={"row"}
+                spacing={2}
+                justifyContent={"center"}
+                alignItems={"flex-end"}
+                mb={2}
+                mr={5}
+              >
+                <Box>
+                  <img
+                    src={image}
+                    alt="profileimage"
+                    width={"40px"}
+                    height={"40px"}
+                    style={{
+                      borderRadius: "50%",
+                      border: "1px solid grey",
+                    }}
+                  />
+                </Box>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    mb: 2,
+                  }}
+                >
+                  <Stack
+                    direction={"column"}
+                    sx={{
+                      // maxWidth: "75%",
+                      px: 1.5,
+                      py: 1,
+                      borderRadius: 3,
+                      bgcolor: "#1b263b",
+                      color: "white",
+                      boxShadow: "0 1px 1px rgba(0,0,0,0.15)",
+                      position: "relative",
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        // pr: 8,
+                        whiteSpace: "pre-wrap",
+                      }}
+                    >
+                      {
+                        "Welcome aboard! This is Live Support. We're here 24/7 to ensure your experience is seamless. Tell me how I can support you today"
+                      }
+                    </Typography>
+
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        alignSelf: "flex-end",
+                        color: "lightgrey",
+                        fontSize: "11px",
+                      }}
+                    >
+                      21:0
+                    </Typography>
+                  </Stack>
+                </Box>
+              </Stack>
+              {/* End of welcome auto Message */}
+
               {/* Start of messages array */}
               {selectedMail &&
                 selectedMail?.[0]?.messages.length > 0 &&
-                selectedMail?.[0]?.messages?.map((mail) => {
-                  // console.log(user?.email);
+                selectedMail?.[0]?.messages?.map((mail, index) => {
                   return (
-                    <ChatMessage
-                      key={mail._id}
-                      message={
-                        mail.messageType === "Image" ? (
-                          <img
-                            src={mail.imageUrl}
-                            alt="Sent image"
-                            style={{
-                              maxWidth: "150px",
-                              maxHeight: "200px",
-                              width: "auto",
-                              height: "auto",
-                              objectFit: "cover",
-                              borderRadius: "12px",
-                              display: "block",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => {
-                              setSelectedImage(mail.imageUrl);
-                              setImageModalOpen(true);
-                            }}
-                          />
-                        ) : (
-                          mail.content
-                        )
-                      }
-                      time={new Date(mail.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                      isMine={mail.from !== singleUser?.email}
-                    />
+                    <React.Fragment key={mail._id}>
+                      <ChatMessage
+                        message={
+                          mail.messageType === "Image" ? (
+                            <img
+                              src={mail.imageUrl}
+                              alt="Sent image"
+                              style={{
+                                maxWidth: "150px",
+                                maxHeight: "200px",
+                                width: "auto",
+                                height: "auto",
+                                objectFit: "cover",
+                                borderRadius: "12px",
+                                display: "block",
+                                cursor: "pointer",
+                              }}
+                              onClick={() => {
+                                setSelectedImage(mail.imageUrl);
+                                setImageModalOpen(true);
+                              }}
+                            />
+                          ) : (
+                            mail.content
+                          )
+                        }
+                        time={new Date(mail.createdAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                        isMine={mail.from !== singleUser?.email}
+                      />
+
+                      {/* Show this after the first message */}
+                      {index === 0 && (
+                        <ChatMessage
+                          message="Understood. I will route you to someone with the right expertise to help you. There should be with you any second now"
+                          time=""
+                          isMine={true}
+                        />
+                      )}
+                    </React.Fragment>
                   );
                 })}
 
@@ -366,6 +447,9 @@ const AdminChat = () => {
               size="medium"
               variant="outlined"
               type="text"
+              multiline
+              minRows={1}
+              maxRows={4}
               // label="Email Address"
               name="message"
               value={message}
@@ -399,15 +483,15 @@ const AdminChat = () => {
                   bgcolor: "#1d2735",
                   "& .MuiOutlinedInput-notchedOutline": {
                     borderColor:
-                      theme.palette.mode === "light" ? "black" : "grey", // Change the border color to red
+                      theme.palette.mode === "light" ? "black" : "grey",
                   },
                   "&:hover .MuiOutlinedInput-notchedOutline": {
                     borderColor:
-                      theme.palette.mode === "light" ? "black" : "grey", // Ensure it stays red on hover
+                      theme.palette.mode === "light" ? "black" : "grey",
                   },
                   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
                     borderColor:
-                      theme.palette.mode === "light" ? "black" : "grey", // Ensure it stays red when focused
+                      theme.palette.mode === "light" ? "black" : "grey",
                   },
                 },
               }}
@@ -445,7 +529,7 @@ const ChatMessage = ({ message, time, isMine = false }) => {
           boxShadow: "0 1px 1px rgba(0,0,0,0.15)",
           position: "relative",
           wordBreak: "break-word",
-          ml: isMine ? 15 : 1,
+          ml: isMine ? 15 : 7,
           mr: isMine ? 0 : 5,
         }}
       >

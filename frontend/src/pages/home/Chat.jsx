@@ -1,3 +1,6 @@
+import React from "react";
+
+
 import {
   Box,
   Stack,
@@ -448,41 +451,50 @@ const Chat = () => {
 
               {/* Start of messages array */}
               {allMails?.[0]?.messages?.length > 0 &&
-                allMails[0].messages.map((mail) => (
-                  <ChatMessage
-                    key={mail._id}
-                    message={
-                      mail.messageType === "Image" ? (
-                        <img
-                          src={mail.imageUrl}
-                          alt="Sent image"
-                          style={{
-                            maxWidth: "150px",
-                            maxHeight: "200px",
-                            width: "auto",
-                            height: "auto",
-                            objectFit: "cover",
-                            borderRadius: "12px",
-                            display: "block",
-                            cursor: "pointer",
-                          }}
-                          onClick={() => {
-                            setSelectedImage(mail.imageUrl);
-                            setImageModalOpen(true);
-                          }}
-                        />
-                      ) : (
-                        mail.content
-                      )
-                    }
-                    time={new Date(mail.createdAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                    isMine={mail.from === user?.email}
-                  />
-                ))}
+                allMails[0].messages.map((mail, index) => (
+                  <React.Fragment key={mail._id}>
+                    <ChatMessage
+                      message={
+                        mail.messageType === "Image" ? (
+                          <img
+                            src={mail.imageUrl}
+                            alt="Sent image"
+                            style={{
+                              maxWidth: "150px",
+                              maxHeight: "200px",
+                              width: "auto",
+                              height: "auto",
+                              objectFit: "cover",
+                              borderRadius: "12px",
+                              display: "block",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => {
+                              setSelectedImage(mail.imageUrl);
+                              setImageModalOpen(true);
+                            }}
+                          />
+                        ) : (
+                          mail.content
+                        )
+                      }
+                      time={new Date(mail.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                      isMine={mail.from === user?.email}
+                    />
 
+                    {/* Show only after the first message */}
+                    {index === 0 && (
+                      <ChatMessage
+                        message="Understood. I will route you to someone with the right expertise to help you. There should be with you any second now"
+                        time=""
+                        isMine={false}
+                      />
+                    )}
+                  </React.Fragment>
+                ))}
               {imageModalOpen && selectedImage && (
                 <Box
                   onClick={() => setImageModalOpen(false)}
@@ -611,6 +623,9 @@ const Chat = () => {
               size="medium"
               variant="outlined"
               type="text"
+              multiline
+              minRows={1}
+              maxRows={4}
               // label="Email Address"
               name="message"
               value={message}
