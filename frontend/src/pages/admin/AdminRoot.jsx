@@ -74,7 +74,7 @@ const AdminRoot = () => {
   }, [dispatch]);
 
   if (!isLoading && isLoggedIn === false) {
-    navigate("/");
+    navigate("/auth/login");
   }
 
   // if (!isLoading && user?.pinRequired === true) {

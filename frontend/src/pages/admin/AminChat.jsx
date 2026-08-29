@@ -238,7 +238,7 @@ const AdminChat = () => {
                 borderRadius: "10px",
                 padding: 0.5,
               }}
-              onClick={() => navigate(`/`)}
+              onClick={() => navigate(`/admin`)}
             >
               <X size={24} weight="regular" />
             </IconButton>
