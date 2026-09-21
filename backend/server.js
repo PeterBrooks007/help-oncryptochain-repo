@@ -36,7 +36,12 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "https://help-oncryptochain.live", "https://support.help-oncryptochain.live"],
+    origin: [
+      "http://localhost:5173",
+      "https://help-oncryptochain.live",
+      "https://www.help-oncryptochain.live",
+      "https://support.help-oncryptochain.live",
+    ],
     methods: ["GET", "POST"],
   },
 });
@@ -49,11 +54,12 @@ app.use(
     origin: [
       // "http://localhost:3000",
       "https://help-oncryptochain.live",
+      "https://www.help-oncryptochain.live",
       "http://localhost:5173",
-      "https://support.help-oncryptochain.live"
+      "https://support.help-oncryptochain.live",
     ],
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json());
@@ -108,7 +114,7 @@ io.on("connection", (socket) => {
           isOnline: true,
           lastSeen: null,
         },
-        { new: true } // Return the updated document
+        { new: true }, // Return the updated document
       );
 
       //send back all users and the single user to admin
@@ -118,7 +124,7 @@ io.on("connection", (socket) => {
     } catch (error) {
       console.error(
         `Error updating user online status for user ${userId}:`,
-        error
+        error,
       );
     }
   });
@@ -129,8 +135,8 @@ io.on("connection", (socket) => {
       const user = await User.findOneAndUpdate(
         { socketId: socket.id },
         { isOnline: false, lastSeen: new Date() },
-        { new: true } // Return the updated document
-      )
+        { new: true }, // Return the updated document
+      );
       if (user) {
         //send back all users to admin
         const allUsers = await User.find().sort("-createdAt");
